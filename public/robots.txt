@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://www.jkeducareservices.com
+
+# Sitemaps
+Sitemap: https://www.jkeducareservices.com/sitemap.xml
