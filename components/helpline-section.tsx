@@ -16,6 +16,7 @@ export function HelplineSection() {
           style={{
             background: 'var(--gradient-primary)',
             boxShadow: '0 32px 80px var(--primary-glow)',
+            willChange: 'transform',        // ✅ FIX 2: prevents non-composited animation warning
           }}
         >
           {/* Decorative circles */}
@@ -38,7 +39,10 @@ export function HelplineSection() {
               <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
                 <HeadphonesIcon className="h-7 w-7 text-white" />
               </div>
-              <h2 className="font-display text-white" style={{ fontSize: 'clamp(1.6rem, 4vw, 2.8rem)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.15 }}>
+              <h2
+                className="font-display text-white"
+                style={{ fontSize: 'clamp(1.6rem, 4vw, 2.8rem)', fontWeight: 700, letterSpacing: '-0.03em', lineHeight: 1.15 }}
+              >
                 Student Helpline
               </h2>
               <p className="mt-4 text-lg leading-relaxed text-blue-100">
@@ -51,7 +55,7 @@ export function HelplineSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="mt-8 inline-flex items-center gap-2.5 rounded-xl bg-white px-7 py-3.5 text-sm font-semibold transition-all"
-                style={{ color: 'var(--primary)', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}
+                style={{ color: 'var(--primary)', boxShadow: '0 8px 24px rgba(0,0,0,0.2)', willChange: 'transform' }}
                 whileHover={{ scale: 1.05, y: -2, boxShadow: '0 16px 40px rgba(0,0,0,0.25)' }}
                 whileTap={{ scale: 0.97 }}
               >
@@ -63,10 +67,10 @@ export function HelplineSection() {
             {/* Right: feature cards */}
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: MessageCircle, title: "WhatsApp Support", desc: "Send questions anytime and get personalized responses" },
-                { icon: Clock, title: "Quick Response", desc: "We respond to all queries as quickly as possible" },
-                { icon: HeadphonesIcon, title: "Personal Attention", desc: "Every student gets individual care and guidance" },
-                { icon: Zap, title: "Always Available", desc: "Our helpline is open 7 days a week for students" },
+                { icon: MessageCircle, title: "WhatsApp Support",  desc: "Send questions anytime and get personalized responses" },
+                { icon: Clock,         title: "Quick Response",    desc: "We respond to all queries as quickly as possible" },
+                { icon: HeadphonesIcon,title: "Personal Attention",desc: "Every student gets individual care and guidance" },
+                { icon: Zap,           title: "Always Available",  desc: "Our helpline is open 7 days a week for students" },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -75,9 +79,13 @@ export function HelplineSection() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 + i * 0.08 }}
                   className="rounded-2xl bg-white/10 p-5 backdrop-blur-sm"
+                  style={{ willChange: 'transform' }}
                 >
                   <item.icon className="mb-3 h-6 w-6 text-white/80" />
-                  <h4 className="mb-1 text-sm font-semibold text-white">{item.title}</h4>
+
+                  {/* ✅ FIX 1: h4 → h3 — fixes heading order accessibility warning */}
+                  <h3 className="mb-1 text-sm font-semibold text-white">{item.title}</h3>
+
                   <p className="text-xs leading-relaxed text-blue-200">{item.desc}</p>
                 </motion.div>
               ))}

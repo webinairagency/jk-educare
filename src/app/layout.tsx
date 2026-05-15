@@ -5,6 +5,9 @@ import './globals.css'
 export const metadata: Metadata = {
   metadataBase: new URL('https://jkeducareservices.com'),
   title: 'JK Edu-Care Services | Student Guidance & Career Counseling',
+  verification: {
+    google: "4-r7ZGE-Emafefak17qY3IaRSqZnNPe2gde5U07GS",
+  },
   description:
     'Get expert guidance for college admissions, career decisions, and exam preparation. Personal support from JK Sir and experienced educators. Trusted by 2000+ students across Tamil Nadu.',
   keywords: [
@@ -57,7 +60,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Fonts */}
-        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link rel="preconnect" href="https://cdn.fontshare.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
           href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=satoshi@400,500,600,700&display=swap"
