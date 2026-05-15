@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   verification: {
     google: "4-r7ZGE-Emafefak17qY3IaRSqZnNPe2gde5U07GS",
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
   description:
     'Get expert guidance for college admissions, career decisions, and exam preparation. Personal support from JK Sir and experienced educators. Trusted by 2000+ students across Tamil Nadu.',
   keywords: [
