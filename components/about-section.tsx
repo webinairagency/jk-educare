@@ -47,6 +47,9 @@ export function AboutSection() {
                   alt="JK Sir — Educational Counselor"
                   width={500}
                   height={420}
+                  sizes="(max-width: 768px) 100vw, 380px"
+                  quality={75}
+                  priority
                   className="w-full object-cover"
                 />
                 {/* Gradient overlay at bottom */}
