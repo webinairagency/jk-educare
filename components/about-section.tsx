@@ -43,7 +43,7 @@ export function AboutSection() {
                 style={{ boxShadow: 'var(--shadow-lg)' }}
               >
                 <Image
-                  src="/images/jk-sir.jpg.png"
+                  src="/images/jk-sir.png.jpg"
                   alt="JK Sir — Educational Counselor"
                   width={500}
                   height={420}
