@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic"
-import { motion } from "framer-motion"
+import { AnimatedMain } from "@/components/animated-main"
 import { Header } from "@/components/header"
 import { HeadlineTicker } from "@/components/headline-ticker"
 import { HeroSection } from "@/components/hero-section"
@@ -22,12 +22,7 @@ const Footer = dynamic(() => import("@/components/footer").then(m => ({ default:
 
 export default function Home() {
   return (
-    <motion.main
-      className="min-h-screen bg-background overflow-x-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
+    <AnimatedMain>
       <CursorGlow />
       <HeadlineTicker />
       <Header />
@@ -45,6 +40,6 @@ export default function Home() {
       <ContactSection />
       <Footer />
       <FloatingWhatsApp />
-    </motion.main>
+    </AnimatedMain>
   )
 }
