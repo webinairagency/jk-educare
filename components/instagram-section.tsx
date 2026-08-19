@@ -120,7 +120,7 @@ function ReelEmbed() {
 export function InstagramSection() {
   return (
     <section
-      className="relative overflow-hidden py-24 sm:py-32"
+      className="relative overflow-hidden py-12 sm:py-16"
       style={{ background: "var(--background)" }}
     >
       {/* BG orb */}
