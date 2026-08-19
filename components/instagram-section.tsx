@@ -6,7 +6,18 @@ import { Instagram, ExternalLink, Play } from "lucide-react"
 
 const INSTAGRAM_HANDLE = "jk.21051980"
 const INSTAGRAM_PROFILE_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}`
-const INSTAGRAM_REEL_URL = "https://www.instagram.com/reel/DaR_RR8FdNh/"
+
+type InstagramPost = {
+  url: string
+  label: string
+}
+
+// Exact order required: left reel, center post, right reel.
+const INSTAGRAM_POSTS: InstagramPost[] = [
+  { url: "https://www.instagram.com/reel/DaR_RR8FdNh/", label: "Watch the Reel on Instagram" },
+  { url: "https://www.instagram.com/p/DYm-UXmmIDk/", label: "View this post on Instagram" },
+  { url: "https://www.instagram.com/reel/DVi4CTeAf5Q/", label: "Watch the Reel on Instagram" },
+]
 
 declare global {
   interface Window {
@@ -41,7 +52,7 @@ function loadInstagramEmbedScript(onLoad: () => void) {
   document.body.appendChild(script)
 }
 
-function ReelEmbed() {
+function PostEmbed({ url, label }: InstagramPost) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [embedFailed, setEmbedFailed] = useState(false)
 
@@ -73,7 +84,7 @@ function ReelEmbed() {
   if (embedFailed) {
     return (
       <a
-        href={INSTAGRAM_REEL_URL}
+        href={url}
         target="_blank"
         rel="noopener noreferrer"
         className="group relative flex aspect-[9/16] w-full max-w-[326px] flex-col items-center justify-center overflow-hidden rounded-2xl"
@@ -84,9 +95,7 @@ function ReelEmbed() {
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
           <Play className="h-7 w-7 translate-x-0.5 fill-white text-white" />
         </div>
-        <p className="mt-4 px-6 text-center text-sm font-semibold text-white">
-          Watch the Reel on Instagram
-        </p>
+        <p className="mt-4 px-6 text-center text-sm font-semibold text-white">{label}</p>
         <div className="mt-3 flex items-center gap-1.5 rounded-lg bg-black/20 px-2.5 py-1 backdrop-blur-sm">
           <ExternalLink className="h-3 w-3 text-white" />
           <span className="text-[11px] font-medium text-white">instagram.com</span>
@@ -105,12 +114,12 @@ function ReelEmbed() {
           The link below also acts as a built-in fallback if the script never runs. */}
       <blockquote
         className="instagram-media"
-        data-instgrm-permalink={`${INSTAGRAM_REEL_URL}?utm_source=ig_embed&utm_campaign=loading`}
+        data-instgrm-permalink={`${url}?utm_source=ig_embed&utm_campaign=loading`}
         data-instgrm-version="14"
         style={{ margin: 0, width: "100%" }}
       >
-        <a href={INSTAGRAM_REEL_URL} target="_blank" rel="noopener noreferrer">
-          View this reel on Instagram
+        <a href={url} target="_blank" rel="noopener noreferrer">
+          {label}
         </a>
       </blockquote>
     </div>
@@ -130,99 +139,103 @@ export function InstagramSection() {
       />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-16">
-          {/* Header + profile */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+        {/* Header + profile */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="mx-auto max-w-2xl text-center"
+        >
+          <span
+            className="inline-block rounded-full px-4 py-1.5 text-sm font-medium"
+            style={{ background: "rgba(253, 29, 29, 0.1)", color: "#fd1d1d" }}
           >
+            Instagram
+          </span>
+          <h2
+            className="mt-3 font-display"
+            style={{
+              fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
+              fontWeight: 700,
+              letterSpacing: "-0.03em",
+              color: "var(--foreground)",
+            }}
+          >
+            Follow the{" "}
             <span
-              className="inline-block rounded-full px-4 py-1.5 text-sm font-medium"
-              style={{ background: "rgba(253, 29, 29, 0.1)", color: "#fd1d1d" }}
+              style={{
+                background: "linear-gradient(135deg, #833ab4, #fd1d1d 60%, #fcb045)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
             >
-              Instagram
+              Journey
             </span>
-            <h2
-              className="mt-3 font-display"
-              style={{
-                fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-                fontWeight: 700,
-                letterSpacing: "-0.03em",
-                color: "var(--foreground)",
-              }}
-            >
-              Follow the{" "}
-              <span
-                style={{
-                  background: "linear-gradient(135deg, #833ab4, #fd1d1d 60%, #fcb045)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                Journey
-              </span>
-            </h2>
-            <p className="mt-2 max-w-lg text-base" style={{ color: "var(--muted-foreground)" }}>
-              Behind-the-scenes moments, student stories, and quick updates — follow us on Instagram.
-            </p>
+          </h2>
+          <p className="mx-auto mt-2 max-w-lg text-base" style={{ color: "var(--muted-foreground)" }}>
+            Behind-the-scenes moments, student stories, and quick updates — follow us on Instagram.
+          </p>
 
-            <div
-              className="mt-8 flex flex-wrap items-center gap-4 rounded-2xl p-5"
-              style={{
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                boxShadow: "var(--shadow-sm)",
-              }}
-            >
-              <div
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
-                style={{
-                  background: "linear-gradient(135deg, #833ab4, #fd1d1d 60%, #fcb045)",
-                  boxShadow: "0 8px 20px rgba(253, 29, 29, 0.35)",
-                }}
-              >
-                <Instagram className="h-7 w-7 text-white" />
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
-                  Official Handle
-                </p>
-                <p className="mt-0.5 truncate font-display text-lg font-semibold" style={{ color: "var(--foreground)" }}>
-                  @{INSTAGRAM_HANDLE}
-                </p>
-              </div>
-
-              <motion.a
-                href={INSTAGRAM_PROFILE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-auto inline-flex shrink-0 items-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white"
-                style={{
-                  background: "linear-gradient(135deg, #833ab4, #fd1d1d 60%, #fcb045)",
-                  boxShadow: "0 8px 24px rgba(253, 29, 29, 0.35)",
-                }}
-                whileHover={{ scale: 1.05, y: -2 }}
-                whileTap={{ scale: 0.97 }}
-              >
-                <Instagram className="h-4 w-4" />
-                Visit Profile
-              </motion.a>
-            </div>
-          </motion.div>
-
-          {/* Reel */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-60px" }}
-            transition={{ duration: 0.6, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className="flex justify-center lg:justify-end"
+          <div
+            className="mx-auto mt-8 flex max-w-md flex-wrap items-center justify-center gap-4 rounded-2xl p-5 sm:justify-start"
+            style={{
+              background: "var(--card)",
+              border: "1px solid var(--border)",
+              boxShadow: "var(--shadow-sm)",
+            }}
           >
-            <ReelEmbed />
-          </motion.div>
+            <div
+              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl"
+              style={{
+                background: "linear-gradient(135deg, #833ab4, #fd1d1d 60%, #fcb045)",
+                boxShadow: "0 8px 20px rgba(253, 29, 29, 0.35)",
+              }}
+            >
+              <Instagram className="h-7 w-7 text-white" />
+            </div>
+            <div className="min-w-0 text-left">
+              <p className="text-xs font-medium uppercase tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+                Official Handle
+              </p>
+              <p className="mt-0.5 truncate font-display text-lg font-semibold" style={{ color: "var(--foreground)" }}>
+                @{INSTAGRAM_HANDLE}
+              </p>
+            </div>
+
+            <motion.a
+              href={INSTAGRAM_PROFILE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto inline-flex shrink-0 items-center gap-2.5 rounded-xl px-5 py-3 text-sm font-semibold text-white"
+              style={{
+                background: "linear-gradient(135deg, #833ab4, #fd1d1d 60%, #fcb045)",
+                boxShadow: "0 8px 24px rgba(253, 29, 29, 0.35)",
+              }}
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.97 }}
+            >
+              <Instagram className="h-4 w-4" />
+              Visit Profile
+            </motion.a>
+          </div>
+        </motion.div>
+
+        {/* Posts grid — equal-weight cards, left reel / center post / right reel */}
+        <div className="mt-12 grid justify-items-center gap-8 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 lg:gap-8">
+          {INSTAGRAM_POSTS.map((post, index) => (
+            <motion.div
+              key={post.url}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.6, delay: 0.1 + index * 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className={`flex w-full justify-center ${index === 2 ? "sm:col-span-2 lg:col-span-1" : ""}`}
+            >
+              <PostEmbed url={post.url} label={post.label} />
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
