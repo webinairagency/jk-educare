@@ -15,6 +15,7 @@ const LiveSessionsSection = dynamic(() => import("@/components/live-sessions-sec
 const ExamUpdatesSection = dynamic(() => import("@/components/exam-updates-section").then(m => ({ default: m.ExamUpdatesSection })))
 const WhatsAppChannelSection = dynamic(() => import("@/components/whatsapp-channel-section").then(m => ({ default: m.WhatsAppChannelSection })))
 const YouTubeSection = dynamic(() => import("@/components/youtube-section").then(m => ({ default: m.YouTubeSection })))
+const InstagramSection = dynamic(() => import("@/components/instagram-section").then(m => ({ default: m.InstagramSection })))
 const HelplineSection = dynamic(() => import("@/components/helpline-section").then(m => ({ default: m.HelplineSection })))
 const FAQSection = dynamic(() => import("@/components/faq-section").then(m => ({ default: m.FAQSection })))
 const ContactSection = dynamic(() => import("@/components/contact-section").then(m => ({ default: m.ContactSection })))
@@ -35,6 +36,7 @@ export default function Home() {
       <ExamUpdatesSection />
       <WhatsAppChannelSection />
       <YouTubeSection />
+      <InstagramSection />
       <HelplineSection />
       <FAQSection />
       <ContactSection />
