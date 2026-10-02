@@ -1,9 +1,21 @@
+import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth, signIn } from "../../auth";
 import { display, body } from "../../components/portal/fonts";
 import s from "../../components/portal/portal.module.css";
 
-export const metadata = { title: "Student login | JK Edu-Care Services" };
+export const metadata: Metadata = {
+  title: "Student login | JK Edu-Care Services",
+  icons: {
+    icon: [
+      { url: "/portal-favicon.ico", sizes: "any" },
+      { url: "/portal-favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/portal-favicon-16.png", type: "image/png", sizes: "16x16" },
+    ],
+    apple: "/portal-apple-touch-icon.png",
+  },
+};
 
 export default async function LoginPage() {
   const session = await auth();
@@ -14,7 +26,7 @@ export default async function LoginPage() {
     <div className={`${s.shell} ${display.variable} ${body.variable}`}>
       <div className={s.gate}>
         <div className={s.gateCard}>
-          <div className={s.logo} style={{ color: "var(--blueDeep)" }}><b>JK</b><span style={{ color: "var(--ink)" }}>Edu-Care Services</span></div>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><Image src="/jk-logo-96.png" alt="JK Edu-Care Services" width={72} height={72} priority /></div>
           <h1>Batch I class portal</h1>
           <p>Live classes, recordings and notes for registered +2 students.</p>
           <form action={async () => { "use server"; await signIn("google", { redirectTo: "/portal" }); }}>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Baloo_Thambi_2, Hind_Madurai } from "next/font/google";
 import s from "./register.module.css";
@@ -93,7 +94,7 @@ export default function RegisterForm() {
     <div className={`${s.page} ${display.variable} ${body.variable}`}>
       <header className={s.band}>
         <div className={s.wrap}>
-          <div className={s.brand}><b>JK</b> Edu-Care Services</div>
+          <div className={s.brand}><Image src="/jk-logo-96.png" alt="JK Edu-Care Services" width={48} height={48} priority /> Edu-Care Services</div>
           <h1>+2 மாணவரா நீங்கள்?</h1>
           <p className={s.sub}>Free online classes for all subjects, NEET &amp; JEE. Weekends and holidays only, so school isn&apos;t disturbed.</p>
           <ul className={s.free}><li>Free material</li><li>Question bank</li><li>Answer keys</li><li>Model exams</li></ul>
@@ -150,7 +151,7 @@ export default function RegisterForm() {
 
             <div className={field("name")} id="f-name">
               <label htmlFor="name">Student name <span className={s.ta}>பெயர் – initial உடன்</span></label>
-              <input id="name" className={s.upper} type="text" autoComplete="name" placeholder="e.g. R. KAVYA" maxLength={60}
+              <input id="name" className={s.upper} type="text" autoComplete="name" maxLength={60}
                 value={f.name} onChange={e => set("name", e.target.value)} />
               <Err k="name" />
             </div>

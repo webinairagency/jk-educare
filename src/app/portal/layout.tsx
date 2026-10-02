@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata, Viewport } from "next";
 import { redirect } from "next/navigation";
@@ -12,7 +13,14 @@ export const metadata: Metadata = {
   robots: { index: false },
   manifest: "/portal.webmanifest",
   appleWebApp: { capable: true, title: "JK Classes", statusBarStyle: "default" },
-  icons: { apple: "/portal-icon-192.png" },
+  icons: {
+    icon: [
+      { url: "/portal-favicon.ico", sizes: "any" },
+      { url: "/portal-favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/portal-favicon-16.png", type: "image/png", sizes: "16x16" },
+    ],
+    apple: "/portal-apple-touch-icon.png",
+  },
 };
 export const viewport: Viewport = { themeColor: "#183A8F", viewportFit: "cover" };
 
@@ -27,7 +35,7 @@ export default async function PortalLayout({ children }: { children: React.React
     <div className={`${s.shell} ${display.variable} ${body.variable}`} lang={lang}>
       <header className={s.bar}>
         <div className={s.barIn}>
-          <Link href="/portal" className={s.logo}><b>JK</b> Classes</Link>
+          <Link href="/portal" className={s.logo}><Image src="/jk-logo-96.png" alt="JK Edu-Care Services" width={40} height={40} priority /> Classes</Link>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div className={s.who}>{st.name}<br />{st.regNo}</div>
             <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }); }}>

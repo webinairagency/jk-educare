@@ -1,10 +1,22 @@
+import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "../../auth";
 import LinkForm from "./LinkForm";
 import { display, body } from "../../components/portal/fonts";
 import s from "../../components/portal/portal.module.css";
 
-export const metadata = { title: "Link your roll number | JK Edu-Care Services" };
+export const metadata: Metadata = {
+  title: "Link your roll number | JK Edu-Care Services",
+  icons: {
+    icon: [
+      { url: "/portal-favicon.ico", sizes: "any" },
+      { url: "/portal-favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/portal-favicon-16.png", type: "image/png", sizes: "16x16" },
+    ],
+    apple: "/portal-apple-touch-icon.png",
+  },
+};
 
 export default async function LinkPage() {
   const session = await auth();
@@ -15,6 +27,7 @@ export default async function LinkPage() {
     <div className={`${s.shell} ${display.variable} ${body.variable}`}>
       <div className={s.gate}>
         <div className={s.gateCard}>
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><Image src="/jk-logo-96.png" alt="JK Edu-Care Services" width={72} height={72} priority /></div>
           <h1>One last step</h1>
           <p>Connect <strong>{session.user.email}</strong> to your roll number. You only do this once.</p>
           <LinkForm />

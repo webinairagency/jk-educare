@@ -13,7 +13,6 @@
 .bar { background: var(--blue); color: #fff; padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px; position: sticky; top: 0; z-index: 10; }
 .barIn { max-width: 960px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .logo { display: flex; align-items: center; gap: 8px; font-weight: 600; text-decoration: none; color: #fff !important; }
-.logo b { background: var(--sun); color: var(--blueDeep); font: 800 15px/1 var(--display), sans-serif; padding: 6px 8px 4px; border-radius: 6px; }
 .who { font-size: 13px; text-align: right; line-height: 1.3; opacity: .9; }
 .signout { background: none; border: 1.5px solid rgba(255,255,255,.4); color: #fff; border-radius: 8px; padding: 6px 10px; font: 600 13px/1 var(--body), sans-serif; cursor: pointer; }
 
