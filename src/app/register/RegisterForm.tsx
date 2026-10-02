@@ -23,7 +23,7 @@ type Form = {
   name: string; gender: string; board: string; group: string; school: string;
   place: string; district: string; phone: string; parent: string; consent: boolean; website: string;
 };
-type Result = { regNo: string; position: number; shortlisted: boolean; duplicate?: boolean; pools?: Pools };
+type Result = { regNo: string; position: number; shortlisted: boolean; duplicate?: boolean; accessCode?: string; linked?: boolean; pools?: Pools };
 
 const EMPTY: Form = { name: "", gender: "", board: "", group: "", school: "", place: "", district: "", phone: "", parent: "", consent: false, website: "" };
 const mobile = (v: string) => /^[6-9]\d{9}$/.test(v);
@@ -132,6 +132,19 @@ export default function RegisterForm() {
             {done.res.shortlisted
               ? <span className={`${s.status} ${s.ok}`}>Shortlisted: seat {done.res.position} of {LIMIT}</span>
               : <span className={`${s.status} ${s.wait}`}>Waitlist: position {done.res.position - LIMIT}. We&apos;ll contact you for the next batch.</span>}
+            {done.res.shortlisted && done.res.accessCode ? (
+              <div className={s.codeBox}>
+                <div className={s.codeLabel}>Your class portal access code</div>
+                <div className={s.code}>{done.res.accessCode}</div>
+                <p>Use it once to log in. Screenshot this page.</p>
+                <p className={s.ta}>இந்த குறியீட்டை ஒருமுறை பயன்படுத்தவும். இந்தப் பக்கத்தை screenshot எடுக்கவும்.</p>
+              </div>
+            ) : done.res.duplicate && done.res.linked ? (
+              <p className={s.linkedNote}>Your account is already linked. Log in with Google.</p>
+            ) : null}
+            {done.res.shortlisted && ((done.res.accessCode ?? "") !== "" || (done.res.duplicate && done.res.linked)) && (
+              <a className={`${s.btn} ${s.portalBtn}`} href="/login">Go to class portal</a>
+            )}
             <a className={`${s.btn} ${s.wa}`} href={done.form.gender === "Girl" ? WA_GIRLS : WA_BOYS} target="_blank" rel="noopener noreferrer">
               {done.form.gender === "Girl" ? "Join the girls' WhatsApp group" : "Join the boys' WhatsApp group"}
             </a>
