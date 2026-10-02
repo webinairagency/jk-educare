@@ -48,6 +48,28 @@ export default function RegisterForm() {
   const [formErr, setFormErr] = useState("");
   const [done, setDone] = useState<{ form: Form; res: Result } | null>(null);
   const topRef = useRef<HTMLDivElement>(null);
+  const codeRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  // Keep the code on this phone so the login step can fill it in. Never put it in a URL.
+  useEffect(() => {
+    if (done?.res.shortlisted && done.res.accessCode) {
+      try { localStorage.setItem("jk_pending_link", JSON.stringify({ regNo: done.res.regNo, code: done.res.accessCode })); } catch { /* storage blocked */ }
+    }
+  }, [done]);
+
+  async function copyCode() {
+    if (!done?.res.accessCode) return;
+    try {
+      await navigator.clipboard.writeText(`JK Edu-Care Batch I\nRoll number: ${done.res.regNo}\nAccess code: ${done.res.accessCode}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard blocked: select the code so the student can long-press and copy.
+      const el = codeRef.current;
+      if (el) { const range = document.createRange(); range.selectNodeContents(el); const sel = window.getSelection(); sel?.removeAllRanges(); sel?.addRange(range); }
+    }
+  }
 
   useEffect(() => {
     fetch("/api/register", { cache: "no-store" })
@@ -123,6 +145,9 @@ export default function RegisterForm() {
 
         {done ? (
           <section className={s.done} aria-live="polite">
+            <button type="button" className={s.backBtn} aria-label="Back to form" onClick={() => { setDone(null); setF(EMPTY); setErrors({}); }}>
+              <span aria-hidden="true">←</span> Back
+            </button>
             <div className={s.tick} aria-hidden="true">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
             </div>
@@ -135,7 +160,10 @@ export default function RegisterForm() {
             {done.res.shortlisted && done.res.accessCode ? (
               <div className={s.codeBox}>
                 <div className={s.codeLabel}>Your class portal access code</div>
-                <div className={s.code}>{done.res.accessCode}</div>
+                <div className={s.codeRow}>
+                  <div className={s.code} ref={codeRef}>{done.res.accessCode}</div>
+                  <button type="button" className={s.copyBtn} onClick={copyCode}>{copied ? "Copied ✓" : "Copy"}</button>
+                </div>
                 <p>Use it once to log in. Screenshot this page.</p>
                 <p className={s.ta}>இந்த குறியீட்டை ஒருமுறை பயன்படுத்தவும். இந்தப் பக்கத்தை screenshot எடுக்கவும்.</p>
               </div>
@@ -154,9 +182,6 @@ export default function RegisterForm() {
               )}`}>
               Also send my details on WhatsApp
             </a>
-            <button type="button" className={`${s.btn} ${s.ghost}`} onClick={() => { setDone(null); setF(EMPTY); setErrors({}); }}>
-              Register another student
-            </button>
           </section>
         ) : (
           <form className={s.form} onSubmit={submit} noValidate>

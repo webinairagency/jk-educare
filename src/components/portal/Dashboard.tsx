@@ -43,6 +43,7 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang }: {
   useEffect(() => {
     setNow(Date.now());
     setWatched(readWatched());
+    try { localStorage.removeItem("jk_pending_link"); } catch { /* ignore */ }   // linked: forget saved code
     if (window.location.hash === "#missed") setTab("missed");   // link from My progress
     // Re-check class states every 30 s on the phone itself (no server calls).
     const tick = setInterval(() => setNow(Date.now()), 30_000);
