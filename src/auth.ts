@@ -18,7 +18,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
       if ((account || trigger === "update") && token.email) {
         try {
           const r = await callScript<{ student: Student | null }>("student", { email: token.email });
-          token.student = r.student;
+          token.student = r.student ?? null;
         } catch {
           token.student = null;
         }
