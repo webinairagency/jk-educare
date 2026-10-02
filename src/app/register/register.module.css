@@ -92,8 +92,8 @@
 .backBtn:focus-visible, .copyBtn:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
 .codeBox p { font-size: 14px; margin: 2px 0 0; }
 .linkedNote { background: #E2F6EA; color: #11703A; font-weight: 600; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; }
-.portalBtn { background: var(--blue); color: #fff; border: 0; }
 .btn { display: flex; width: 100%; align-items: center; justify-content: center; text-decoration: none; border-radius: 12px; padding: 14px; font: 600 16px/1.3 var(--body), sans-serif; margin-top: 10px; cursor: pointer; background: none; }
+.portalBtn { background: var(--blue); color: #fff; border: 0; }
 .wa { background: var(--wa); color: #fff; border: 0; }
 .ghost { border: 1.5px solid var(--line); color: var(--blue); }
 .foot { text-align: center; color: var(--muted); font-size: 13.5px; margin-top: 22px; }
