@@ -50,7 +50,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
           <iframe src={liveSrc} title={`${c.subject}: ${c.topic} (live)`} allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowFullScreen />
         </div>
       ) : recSrc ? (
-        <VideoGate src={recSrc} title={`${c.subject}: ${c.topic}`} play={t.play} note={t.dataNote}>{thumb}</VideoGate>
+        <VideoGate classId={c.id} src={recSrc} title={`${c.subject}: ${c.topic}`} play={t.play} note={t.dataNote}>{thumb}</VideoGate>
       ) : (
         <div className={s.media}>{thumb}</div>
       )}

@@ -17,7 +17,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     async jwt({ token, account, trigger }) {
       if ((account || trigger === "update") && token.email) {
         try {
-          const r = await callScript<{ student: Student | null }>("student", { email: token.email });
+          const r = await callScript<{ student?: Student | null }>("student", { email: token.email });
           token.student = r.student ?? null;
         } catch {
           token.student = null;

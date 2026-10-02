@@ -1,4 +1,4 @@
-import { fmtDay, fmtTime } from "../../lib/classes";
+import { fmtDay, fmtTime } from "../../lib/classes-shared";
 
 // One colour per subject so students recognise classes at a glance.
 const COLOURS: Record<string, [string, string]> = {

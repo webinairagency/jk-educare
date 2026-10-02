@@ -28,6 +28,10 @@ const en = {
   rollNo: "Roll number", group: "Group", board: "Board",
   attended: "Joined live", finished: "Classes so far", missedCount: "Missed", watchMissed: "Watch missed classes",
   progressNote: "Counted when you open a class in this portal while it is live.",
+  watchNow: "Watch now", toWatch: "To catch up", inPrefix: "in", today: "Today",
+  tabUpcoming: "Upcoming", tabMissed: "Missed", tabRec: "Recordings",
+  search: "Search topic or teacher", allDays: "Show all days", noneHere: "Nothing here yet.",
+  watched: "Watched", joinedOf: "Joined live", allCaught: "All caught up",
 };
 type T = typeof en;
 
@@ -56,6 +60,10 @@ const ta: T = {
   rollNo: "பதிவு எண்", group: "பிரிவு", board: "பாடத்திட்டம்",
   attended: "நேரலையில் கலந்தவை", finished: "இதுவரை வகுப்புகள்", missedCount: "தவறவிட்டவை", watchMissed: "தவறவிட்ட வகுப்புகளைப் பார்க்க",
   progressNote: "நேரலை நேரத்தில் இந்தப் போர்ட்டலில் வகுப்பைத் திறக்கும்போது கணக்கிடப்படும்.",
+  watchNow: "இப்போது பார்க்க", toWatch: "பார்க்க வேண்டியவை", inPrefix: "இன்னும்", today: "இன்று",
+  tabUpcoming: "வரவிருப்பவை", tabMissed: "தவறவிட்டவை", tabRec: "பதிவுகள்",
+  search: "தலைப்பு அல்லது ஆசிரியர் தேடு", allDays: "அனைத்து நாட்களும்", noneHere: "இங்கே இன்னும் எதுவும் இல்லை.",
+  watched: "பார்த்தது", joinedOf: "நேரலையில் கலந்தவை", allCaught: "அனைத்தும் பார்த்தாகிவிட்டது",
 };
 
 export const STR: Record<Lang, T> = { en, ta };
