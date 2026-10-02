@@ -1,0 +1,15 @@
+{
+  "name": "JK Edu-Care Classes",
+  "short_name": "JK Classes",
+  "description": "Live classes, recordings and study material for JK Edu-Care Batch I students.",
+  "start_url": "/portal",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F3F6FD",
+  "theme_color": "#183A8F",
+  "icons": [
+    { "src": "/portal-icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/portal-icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/portal-icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
