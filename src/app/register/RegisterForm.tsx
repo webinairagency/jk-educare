@@ -11,8 +11,17 @@ const body = Hind_Madurai({ subsets: ["tamil", "latin"], weight: ["400", "500", 
 /* ================= CONFIG ================= */
 const LIMIT = 50;
 const CONTACT = "919842463437";
-const WA_BOYS = "https://chat.whatsapp.com/REPLACE_BOYS";
-const WA_GIRLS = "https://chat.whatsapp.com/REPLACE_GIRLS";
+// WhatsApp community: one invite link per group the student picks (boys and girls are together).
+// Paste each group's invite link here. A link that still says REPLACE is hidden, and the
+// student sees the COMMUNITY link instead (if that is set).
+const WA_COMMUNITY = "https://chat.whatsapp.com/IYZ7an3cKCfI4LzwcOcR2m";
+const WA_GROUPS: Record<string, string> = {
+  "XII – Bio-Maths": "https://chat.whatsapp.com/REPLACE_BIO_MATHS",
+  "XII – CS-Maths": "https://chat.whatsapp.com/REPLACE_CS_MATHS",
+  "XII – Pure Science (Bio)": "https://chat.whatsapp.com/REPLACE_PURE_SCIENCE",
+  "XII – Other": "https://chat.whatsapp.com/REPLACE_OTHER",
+};
+const waLink = (group: string) => [WA_GROUPS[group], WA_COMMUNITY].find(l => l && !l.includes("REPLACE")) ?? "";
 /* ========================================== */
 
 const DISTRICTS = ["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kallakurichi","Kancheepuram","Kanniyakumari","Karur","Krishnagiri","Madurai","Mayiladuthurai","Nagapattinam","Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram","Ranipet","Salem","Sivagangai","Tenkasi","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupathur","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar","Puducherry","Outside Tamil Nadu"];
@@ -29,7 +38,7 @@ const EMPTY: Form = { name: "", gender: "", board: "", group: "", school: "", pl
 const mobile = (v: string) => /^[6-9]\d{9}$/.test(v);
 const RULES: Record<string, [(f: Form) => boolean, string]> = {
   name: [f => f.name.trim().length >= 3, "Enter the name with initial, e.g. R. KAVYA"],
-  gender: [f => !!f.gender, "Choose boy or girl so we add you to the right WhatsApp group"],
+  gender: [f => !!f.gender, "Choose boy or girl"],
   board: [f => !!f.board, "Choose your board"],
   group: [f => !!f.group, "Select your group"],
   school: [f => f.school.trim().length >= 3, "Enter your school name"],
@@ -173,9 +182,11 @@ export default function RegisterForm() {
             {done.res.shortlisted && ((done.res.accessCode ?? "") !== "" || (done.res.duplicate && done.res.linked)) && (
               <a className={`${s.btn} ${s.portalBtn}`} href="/login">Go to class portal</a>
             )}
-            <a className={`${s.btn} ${s.wa}`} href={done.form.gender === "Girl" ? WA_GIRLS : WA_BOYS} target="_blank" rel="noopener noreferrer">
-              {done.form.gender === "Girl" ? "Join the girls' WhatsApp group" : "Join the boys' WhatsApp group"}
-            </a>
+            {waLink(done.form.group) && (
+              <a className={`${s.btn} ${s.wa}`} href={waLink(done.form.group)} target="_blank" rel="noopener noreferrer">
+                Join the WhatsApp group for {done.form.group.replace("XII – ", "")}
+              </a>
+            )}
             <a className={`${s.btn} ${s.ghost}`} target="_blank" rel="noopener noreferrer"
               href={`https://wa.me/${CONTACT}?text=${encodeURIComponent(
                 `Batch I Registration (${done.res.regNo})\nNAME: ${done.form.name}\nCLASS & GROUP: ${done.form.group}\nBOARD: ${done.form.board}\nSCHOOL: ${done.form.school}\nPLACE & DISTRICT: ${done.form.place}, ${done.form.district}`
@@ -195,7 +206,7 @@ export default function RegisterForm() {
             </div>
 
             <div className={field("gender")} id="f-gender">
-              <span className={s.legend} id="lg-gender">Group to join <span className={s.ta}>மாணவர் / மாணவி</span></span>
+              <span className={s.legend} id="lg-gender">Boy or girl <span className={s.ta}>மாணவர் / மாணவி</span></span>
               <div className={s.chips} role="radiogroup" aria-labelledby="lg-gender">
                 {["Boy", "Girl"].map(v => (
                   <span key={v}>
