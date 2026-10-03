@@ -115,10 +115,12 @@ function register_(d) {
     const name = clean_(String(d.name).toUpperCase(), 60);
     const last = sh.getLastRow();
     if (last >= 2) {
-      const rows = sh.getRange(2, 1, last - 1, 13).getValues();
+      const rows = sh.getRange(2, 1, last - 1, 18).getValues();
       for (const r of rows) {
         if (String(r[C.phone]) === d.phone && String(r[C.name]) === name) {
-          return json_({ ok: true, duplicate: true, regNo: r[C.regNo], position: r[12], shortlisted: r[12] <= LIMIT, pools: poolCounts_(sh) });
+          // The code is never re-sent here (anyone who knows a name and number could take the seat).
+          // A student who lost it asks JK sir, who can read it in the sheet.
+          return json_({ ok: true, duplicate: true, regNo: r[C.regNo], position: r[12], shortlisted: r[12] <= LIMIT, linked: !!r[C.email], pools: poolCounts_(sh) });
         }
       }
     }
@@ -126,11 +128,15 @@ function register_(d) {
     const counts = poolCounts_(sh);
     const position = counts[pool] + 1;
     const regNo = 'JK-' + BATCH_CODE + '-' + String(Math.max(last, 1)).padStart(4, '0');
+    const shortlisted = position <= LIMIT;
+    // Shortlisted students get their 6-digit access code straight away (shown on the success screen)
+    const code = shortlisted ? String(Math.floor(100000 + Math.random() * 900000)) : '';
     sh.appendRow([new Date(), regNo, name, clean_(d.group, 40), d.board, pool, clean_(d.gender, 10),
       d.phone, d.parent, clean_(d.school, 100), clean_(d.place, 60), clean_(d.district, 40), position,
-      position <= LIMIT ? 'Shortlisted' : 'Waitlist', '', '']);
+      shortlisted ? 'Shortlisted' : 'Waitlist', '', '', '', code]);
+    if (code) sh.getRange(sh.getLastRow(), C.code + 1).setNumberFormat('@').setValue(code);
     counts[pool]++;
-    return json_({ ok: true, regNo, pool, position, shortlisted: position <= LIMIT, pools: counts });
+    return json_({ ok: true, regNo, pool, position, shortlisted, accessCode: code, pools: counts });
   } catch (err) {
     return json_({ ok: false, error: 'Server busy, try again' });
   } finally { lock.releaseLock(); }
