@@ -6,6 +6,8 @@ import Image from "next/image"
 
 const footerLinks = {
   navigation: [
+    { label: "Student Login", href: "/login" },
+    { label: "Register (Batch I)", href: "/register" },
     { label: "Services", href: "#services" },
     { label: "How It Works", href: "#how-it-works" },
     { label: "Live Sessions", href: "#sessions" },

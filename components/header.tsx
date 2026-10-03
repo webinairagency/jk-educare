@@ -79,12 +79,12 @@ function Logo() {
       </div>
       <div className="flex flex-col leading-tight">
         <span
-          className="text-base font-bold"
+          className="whitespace-nowrap text-base font-bold"
           style={{ fontFamily: "'Clash Display', system-ui", letterSpacing: "-0.02em", color: "var(--foreground)" }}
         >
           JK Edu-Care
         </span>
-        <span className="text-[10px] font-medium tracking-wider" style={{ color: "var(--muted-foreground)" }}>
+        <span className="whitespace-nowrap text-[10px] font-medium tracking-wider" style={{ color: "var(--muted-foreground)" }}>
           Education Worldwide
         </span>
       </div>
@@ -156,6 +156,18 @@ export function Header() {
 
           <div className="hidden items-center gap-3 md:flex">
             {mounted && <ThemeToggle isDark={isDark} onToggle={toggleTheme} />}
+            <a
+              href="/login"
+              className="inline-flex h-9 items-center rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground transition-colors hover:border-primary/40 hover:text-primary"
+            >
+              Student Login
+            </a>
+            <a
+              href="/register"
+              className="inline-flex h-9 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            >
+              Register
+            </a>
             <motion.a
               href="https://wa.me/919842463437"
               target="_blank"
@@ -173,6 +185,12 @@ export function Header() {
 
           {/* Mobile Controls */}
           <div className="flex items-center gap-2 md:hidden">
+            <a
+              href="/login"
+              className="inline-flex h-9 items-center whitespace-nowrap rounded-xl bg-primary px-3 text-sm font-semibold text-primary-foreground"
+            >
+              Login
+            </a>
             {mounted && <ThemeToggle isDark={isDark} onToggle={toggleTheme} />}
             <motion.button
               type="button"
@@ -226,6 +244,10 @@ export function Header() {
             }}
           >
             <nav className="flex flex-col gap-1 px-4 py-4">
+              <div className="mb-2 grid grid-cols-2 gap-2">
+                <a href="/login" className="flex items-center justify-center rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground">Student Login</a>
+                <a href="/register" className="flex items-center justify-center rounded-xl border border-border bg-card py-3 text-sm font-semibold text-foreground">Register</a>
+              </div>
               {navLinks.map((link, i) => (
                 <motion.a
                   key={link.href}

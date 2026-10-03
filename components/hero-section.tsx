@@ -149,12 +149,34 @@ export function HeroSection() {
           Personal support from <strong style={{ color: 'var(--foreground)' }}>JK Sir</strong> — every step of the way.
         </motion.p>
 
+        {/* Student access */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-10 flex w-full max-w-md flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center"
+        >
+          <a
+            href="/login"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5"
+          >
+            Student Login — Class Portal
+          </a>
+          <a
+            href="/register"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 px-8 py-4 text-base font-semibold transition-transform hover:-translate-y-0.5"
+            style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}
+          >
+            Register for Free Classes
+          </a>
+        </motion.div>
+
         {/* CTAs */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-10 flex flex-col items-center gap-4 sm:flex-row"
+          className="mt-6 flex flex-col items-center gap-4 sm:flex-row"
         >
           <motion.a
             href="https://wa.me/919842463437"
