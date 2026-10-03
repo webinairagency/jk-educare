@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { auth } from "../../auth";
 import RegisterForm from "./RegisterForm";
 
 export const metadata: Metadata = {
@@ -13,6 +15,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RegisterPage() {
+export default async function RegisterPage() {
+  // Already registered and linked: go straight to their own dashboard.
+  const session = await auth();
+  if (session?.student) redirect("/portal");
   return <RegisterForm />;
 }
