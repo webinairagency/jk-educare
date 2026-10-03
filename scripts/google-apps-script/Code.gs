@@ -193,7 +193,11 @@ function link_(d) {
     const rows = sh.getDataRange().getValues();
     let rowIdx = -1;
     for (let i = 1; i < rows.length; i++) {
-      if (String(rows[i][C.email]).toLowerCase().trim() === email) return { ok: false, error: 'This Google account is already linked to ' + rows[i][C.regNo] };
+      if (String(rows[i][C.email]).toLowerCase().trim() === email) {
+        // already linked: same roll number just goes to the dashboard, a different one is refused
+        if (String(rows[i][C.regNo]).toUpperCase() === regNo) return { ok: true, student: studentObj_(rows[i]) };
+        return { ok: false, error: 'This Google account is already linked to ' + rows[i][C.regNo] };
+      }
       if (String(rows[i][C.regNo]).toUpperCase() === regNo) rowIdx = i;
     }
     if (rowIdx < 0) return fail('Roll number or access code is wrong');
