@@ -161,7 +161,7 @@ export function HeroSection() {
             className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 px-8 py-4 text-base font-semibold transition-transform hover:-translate-y-0.5"
             style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}
           >
-            Register for Free Classes
+            Register for Free Online Classes
           </a>
         </motion.div>
 
