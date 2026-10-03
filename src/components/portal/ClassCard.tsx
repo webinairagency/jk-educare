@@ -10,7 +10,7 @@ export function cdLabels(t: Strings) {
 }
 
 export default function ClassCard({ c, t, lang, big = false, watched = false }: { c: ClassView; t: Strings; lang: Lang; big?: boolean; watched?: boolean }) {
-  const label = { upcoming: t.stUpcoming, live: t.stLive, processing: t.stProcessing, recorded: t.stRecorded }[c.state];
+  const label = { upcoming: t.stUpcoming, live: t.stLive, processing: t.stProcessing, recorded: t.stRecorded, ended: t.stEnded }[c.state];
   const chip = c.state === "live" ? s.chipLive : c.missed ? s.chipMissed : c.state === "recorded" ? s.chipRec : s.chipUp;
   const href = `/portal/class/${encodeURIComponent(c.id)}`;
   return (

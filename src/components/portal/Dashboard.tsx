@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import ClassCard, { cdLabels } from "./ClassCard";
 import Countdown from "./Countdown";
 import { WATCHED_KEY } from "./VideoGate";
-import { view, fmtDay, fmtTime, JOIN_EARLY_MIN, type ClassRow, type ClassView } from "../../lib/classes-shared";
+import { view, liveKind, fmtDay, fmtTime, JOIN_EARLY_MIN, type ClassRow, type ClassView } from "../../lib/classes-shared";
 import type { Lang, Strings } from "../../lib/i18n";
 import ps from "./portal.module.css";
 import d from "./dashboard.module.css";
@@ -61,11 +61,12 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang, mater
 
   const live = all.filter(c => c.state === "live");
   const upcoming = all.filter(c => c.state === "upcoming");
-  const ended = all.filter(c => c.state === "recorded" || c.state === "processing").reverse();
+  const finished = all.filter(c => c.state === "recorded" || c.state === "processing" || c.state === "ended").reverse();
+  const ended = finished.filter(c => c.state !== "ended");   // the Recordings tab: only classes that can be watched
   const missed = ended.filter(c => c.missed);
   const toWatch = missed.filter(c => !watched.has(c.id));
-  const joined = ended.filter(c => c.attended).length;
-  const pct = ended.length ? Math.round((joined / ended.length) * 100) : 0;
+  const joined = finished.filter(c => c.attended).length;
+  const pct = finished.length ? Math.round((joined / finished.length) * 100) : 0;
   const next = live[0] ?? upcoming[0];
   const subjects = useMemo(() => Array.from(new Set(rows.map(r => r.subject))).sort(), [rows]);
 
@@ -99,7 +100,7 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang, mater
               {isLive
                 ? <span className={d.livePill}><span className={d.pulse} aria-hidden="true" />{t.liveNow}</span>
                 : <span className={d.nextPill}>{t.nextClass}</span>}
-              <span className={d.heroYt}>{t.yt}</span>
+              <span className={d.heroYt}>{({ youtube: t.yt, zoom: "Zoom", meet: "Google Meet", other: t.liveClass, "": t.liveClass } as const)[liveKind(next.live)]}</span>
             </div>
             <h2 className={d.heroTitle}>{next.subject}: {next.topic}</h2>
             <p className={d.heroMeta}>{fmtDay(next.startMs, lang)} · {fmtTime(next.startMs)}–{fmtTime(next.endMs)} · {next.teacher}</p>
@@ -122,7 +123,7 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang, mater
           <svg viewBox="0 0 36 36" className={d.ring} role="img" aria-label={`${pct}%`}>
             <circle cx="18" cy="18" r="15.5" className={d.ringBg} />
             <circle cx="18" cy="18" r="15.5" className={d.ringFg} strokeDasharray={`${pct * 0.974} 100`} />
-            <text x="18" y="21.5" textAnchor="middle" className={d.ringText}>{joined}/{ended.length}</text>
+            <text x="18" y="21.5" textAnchor="middle" className={d.ringText}>{joined}/{finished.length}</text>
           </svg>
         </Link>
       </div>
