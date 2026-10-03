@@ -157,12 +157,6 @@ export function HeroSection() {
           className="mt-10 flex w-full max-w-md flex-col items-stretch gap-3 sm:max-w-none sm:flex-row sm:justify-center"
         >
           <a
-            href="/login"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-base font-semibold text-primary-foreground shadow-lg transition-transform hover:-translate-y-0.5"
-          >
-            Student Login — Class Portal
-          </a>
-          <a
             href="/register"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 px-8 py-4 text-base font-semibold transition-transform hover:-translate-y-0.5"
             style={{ borderColor: 'var(--primary)', color: 'var(--primary)' }}
