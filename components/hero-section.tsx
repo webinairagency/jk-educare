@@ -5,8 +5,8 @@ import { motion, useMotionValue, useSpring, useScroll, useTransform } from "fram
 import { ArrowRight, MessageCircle, Star, Play } from "lucide-react"
 
 const stats = [
-  { value: "500+", label: "Students Guided" },
-  { value: "7+", label: "Years of Service" },
+  { value: "18500+", label: "Students Guided" },
+  { value: "26+", label: "Years of Educational Experience" },
   { value: "100%", label: "Free Consultation" },
 ]
 
