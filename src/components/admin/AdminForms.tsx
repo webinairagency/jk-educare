@@ -31,8 +31,8 @@ export default function AdminForms({ subjects }: { subjects: string[] }) {
           <label>Start (IST)<input name="start" type="datetime-local" required /></label>
           <label>Duration (min)<input name="duration" type="number" min={10} max={300} defaultValue={60} /></label>
           {FOR}
-          <label className={a.wide}>YouTube Live link<input name="live" type="url" required placeholder="https://youtube.com/live/..." /></label>
-          <label className={a.wide}>Recording link (optional, only if different from the live link)<input name="recording" type="url" /></label>
+          <label className={a.wide}>Live link (YouTube, Zoom or Google Meet)<input name="live" type="url" required placeholder="https://youtube.com/live/...  or  https://zoom.us/j/...  or  https://meet.google.com/..." /></label>
+          <label className={a.wide}>Recording link (optional). YouTube classes record themselves; Zoom / Meet have no recording unless you paste one<input name="recording" type="url" /></label>
           <label className={a.wide}>Caption (optional)<input name="caption" maxLength={200} /></label>
           <button disabled={c.pending}>{c.pending ? "Saving…" : "Add class"}</button>
           <Msg s={c.state} />

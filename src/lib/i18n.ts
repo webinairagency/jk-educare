@@ -32,6 +32,8 @@ const en = {
   tabUpcoming: "Upcoming", tabMissed: "Missed", tabRec: "Recordings",
   search: "Search topic or teacher", allDays: "Show all days", noneHere: "Nothing here yet.",
   watched: "Watched", joinedOf: "Joined live", allCaught: "All caught up",
+  stEnded: "Class ended", joinZoom: "Join on Zoom", joinMeet: "Join on Google Meet", joinLink: "Join the class", liveClass: "Live class",
+  noRecording: "This class was held on Zoom / Google Meet, so there is no recording.", joinHint: "Opens in a new tab. Zoom and Google Meet classes are not recorded here.",
   resources: "Study resources", files: "files", soon: "Coming soon", yt: "YouTube Live", startsAt: "Starts",
 };
 type T = typeof en;
@@ -65,6 +67,8 @@ const ta: T = {
   tabUpcoming: "வரவிருப்பவை", tabMissed: "தவறவிட்டவை", tabRec: "பதிவுகள்",
   search: "தலைப்பு அல்லது ஆசிரியர் தேடு", allDays: "அனைத்து நாட்களும்", noneHere: "இங்கே இன்னும் எதுவும் இல்லை.",
   watched: "பார்த்தது", joinedOf: "நேரலையில் கலந்தவை", allCaught: "அனைத்தும் பார்த்தாகிவிட்டது",
+  stEnded: "வகுப்பு முடிந்தது", joinZoom: "Zoom-இல் சேர", joinMeet: "Google Meet-இல் சேர", joinLink: "வகுப்பில் சேர", liveClass: "நேரலை வகுப்பு",
+  noRecording: "இந்த வகுப்பு Zoom / Google Meet-இல் நடந்தது, எனவே பதிவு இல்லை.", joinHint: "புதிய தாவலில் திறக்கும். Zoom, Google Meet வகுப்புகள் இங்கே பதிவு செய்யப்படாது.",
   resources: "படிப்பு வளங்கள்", files: "கோப்புகள்", soon: "விரைவில்", yt: "YouTube நேரலை", startsAt: "தொடக்கம்",
 };
 

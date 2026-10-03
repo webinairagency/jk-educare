@@ -4,7 +4,8 @@ export type ClassRow = {
   id: string; subject: string; topic: string; teacher: string; for: string;
   start: string; duration: number; live: string; recording: string; notes: string; caption: string;
 };
-export type ClassState = "upcoming" | "live" | "processing" | "recorded";
+// "ended" = a Zoom / Google Meet class that is over and has no recording to watch.
+export type ClassState = "upcoming" | "live" | "processing" | "recorded" | "ended";
 export type ClassView = ClassRow & { state: ClassState; attended: boolean; missed: boolean; startMs: number; endMs: number };
 
 export const JOIN_EARLY_MIN = 10;
@@ -32,9 +33,10 @@ export function view(c: ClassRow, attended: Set<string>, now = Date.now()): Clas
   if (now < startMs - JOIN_EARLY_MIN * 60_000) state = "upcoming";
   else if (now <= endMs) state = "live";
   // YouTube: the live video becomes the recording automatically. Recording column only overrides it.
-  else state = videoId(c) ? "recorded" : "processing";
+  // Zoom / Meet have no recording unless one is pasted in the Recording column.
+  else state = videoId(c) ? "recorded" : isExternalLive(c.live) ? "ended" : "processing";
   const wasThere = attended.has(c.id);
-  return { ...c, state, attended: wasThere, missed: now > endMs && !wasThere, startMs, endMs };
+  return { ...c, state, attended: wasThere, missed: now > endMs && !wasThere && state !== "ended", startMs, endMs };
 }
 
 export function fmtDay(ms: number, lang: "en" | "ta" = "en") {
@@ -91,3 +93,19 @@ export function youtubeWatchUrl(c: ClassRow) {
   const y = youtubeId(c.live);
   return y ? `https://www.youtube.com/watch?v=${y}` : null;
 }
+
+/** What the live link is: YouTube (plays inside the portal) or Zoom / Google Meet (opens in its own app). */
+export type LiveKind = "youtube" | "zoom" | "meet" | "other" | "";
+export function liveKind(link: string): LiveKind {
+  const l = (link || "").trim();
+  if (!l) return "";
+  if (youtubeId(l)) return "youtube";
+  try {
+    const host = new URL(l).hostname.toLowerCase();
+    if (host === "zoom.us" || host.endsWith(".zoom.us")) return "zoom";
+    if (host === "meet.google.com") return "meet";
+    if (l.toLowerCase().startsWith("https://") && !driveId(l)) return "other";
+  } catch { /* not a URL */ }
+  return "";
+}
+export const isExternalLive = (link: string) => ["zoom", "meet", "other"].includes(liveKind(link));

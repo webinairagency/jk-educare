@@ -8,7 +8,7 @@ import Countdown from "../../../../components/portal/Countdown";
 import VideoGate from "../../../../components/portal/VideoGate";
 import { cdLabels } from "../../../../components/portal/ClassCard";
 import {
-  calendarLink, fmtDay, fmtTime, getAttendance, getClasses, JOIN_EARLY_MIN,
+  calendarLink, fmtDay, fmtTime, getAttendance, getClasses, isExternalLive, JOIN_EARLY_MIN, liveKind,
   tagsForGroup, videoSrc, view, visibleTo, youtubeWatchUrl,
 } from "../../../../lib/classes";
 import { callScript } from "../../../../lib/script";
@@ -36,7 +36,10 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
 
   const h = await headers();
   const portalUrl = `https://${h.get("host")}/portal/class/${encodeURIComponent(c.id)}`;
-  const liveSrc = c.state === "live" ? videoSrc({ ...row, recording: "" }, true) : null;
+  const kind = liveKind(row.live);
+  const external = isExternalLive(row.live);   // Zoom / Meet: opens in its own app, no embedded player
+  const liveSrc = c.state === "live" && !external ? videoSrc({ ...row, recording: "" }, true) : null;
+  const joinLabel = kind === "zoom" ? t.joinZoom : kind === "meet" ? t.joinMeet : t.joinLink;
   const recSrc = c.state === "recorded" ? videoSrc(row, true) : null;
   const ytUrl = youtubeWatchUrl(row);
   const thumb = <Thumb subject={c.subject} topic={c.topic} startMs={c.startMs} />;
@@ -60,7 +63,14 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
       {c.caption && <p className={s.caption}>{c.caption}</p>}
 
       {c.state === "live" && liveSrc && Date.now() < c.startMs && <div className={s.notice}>{t.notStarted}</div>}
-      {c.state === "live" && !liveSrc && <div className={s.notice}>{t.noLiveLink}</div>}
+      {c.state === "live" && external && (
+        <div className={s.actions}>
+          <a className={`${s.btn} ${s.btnLive}`} href={row.live} target="_blank" rel="noopener noreferrer">▶ {joinLabel}</a>
+          <p className={s.hint}>{t.joinHint}</p>
+        </div>
+      )}
+      {c.state === "live" && !liveSrc && !external && <div className={s.notice}>{t.noLiveLink}</div>}
+      {c.state === "ended" && <div className={s.notice}>{t.noRecording}</div>}
       {c.missed && c.state === "recorded" && <div className={s.notice}>{t.missedLive}</div>}
       {c.state === "processing" && <div className={s.notice}>{t.processing}</div>}
 
