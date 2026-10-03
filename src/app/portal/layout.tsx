@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "../../auth";
 import { getT } from "../../lib/i18n";
 import { setLang } from "./actions";
+import NavLinks from "../../components/portal/NavLinks";
 import { display, body } from "../../components/portal/fonts";
 import s from "../../components/portal/portal.module.css";
 
@@ -46,9 +47,11 @@ export default async function PortalLayout({ children }: { children: React.React
       </header>
       <nav className={s.nav} aria-label="Portal">
         <div className={s.navIn}>
-          <Link href="/portal">{t.home}</Link>
-          <Link href="/portal/materials">{t.materials}</Link>
-          <Link href="/portal/progress">{t.progress}</Link>
+          <NavLinks items={[
+            { href: "/portal", label: t.home },
+            { href: "/portal/materials", label: t.materials },
+            { href: "/portal/progress", label: t.progress },
+          ]} />
           <form action={setLang} style={{ marginLeft: "auto" }}>
             <input type="hidden" name="lang" value={lang === "ta" ? "en" : "ta"} />
             <button className={s.langBtn} type="submit">{t.switchTo}</button>

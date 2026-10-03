@@ -32,6 +32,7 @@ const en = {
   tabUpcoming: "Upcoming", tabMissed: "Missed", tabRec: "Recordings",
   search: "Search topic or teacher", allDays: "Show all days", noneHere: "Nothing here yet.",
   watched: "Watched", joinedOf: "Joined live", allCaught: "All caught up",
+  resources: "Study resources", files: "files", soon: "Coming soon", yt: "YouTube Live", startsAt: "Starts",
 };
 type T = typeof en;
 
@@ -64,6 +65,7 @@ const ta: T = {
   tabUpcoming: "வரவிருப்பவை", tabMissed: "தவறவிட்டவை", tabRec: "பதிவுகள்",
   search: "தலைப்பு அல்லது ஆசிரியர் தேடு", allDays: "அனைத்து நாட்களும்", noneHere: "இங்கே இன்னும் எதுவும் இல்லை.",
   watched: "பார்த்தது", joinedOf: "நேரலையில் கலந்தவை", allCaught: "அனைத்தும் பார்த்தாகிவிட்டது",
+  resources: "படிப்பு வளங்கள்", files: "கோப்புகள்", soon: "விரைவில்", yt: "YouTube நேரலை", startsAt: "தொடக்கம்",
 };
 
 export const STR: Record<Lang, T> = { en, ta };

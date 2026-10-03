@@ -5,11 +5,11 @@ import s from "./portal.module.css";
 
 type Labels = { all: string; open: string; empty: string; types: Record<string, string> };
 
-export default function MaterialsList({ items, labels }: { items: Material[]; labels: Labels }) {
+export default function MaterialsList({ items, labels, initialType = "" }: { items: Material[]; labels: Labels; initialType?: string }) {
   const subjects = useMemo(() => Array.from(new Set(items.map(i => i.subject))).sort(), [items]);
   const types = useMemo(() => Array.from(new Set(items.map(i => i.type))), [items]);
   const [subject, setSubject] = useState("");
-  const [type, setType] = useState("");
+  const [type, setType] = useState(() => types.find(x => x.toLowerCase() === initialType.toLowerCase()) ?? "");
   const shown = items.filter(i => (!subject || i.subject === subject) && (!type || i.type === type));
   const typeLabel = (x: string) => labels.types[x.toLowerCase()] ?? x;
 

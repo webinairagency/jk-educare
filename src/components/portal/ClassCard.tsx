@@ -29,7 +29,7 @@ export default function ClassCard({ c, t, lang, big = false, watched = false }: 
         {c.state === "upcoming" && (
           <p className={s.countdown}><Countdown openMs={c.startMs - JOIN_EARLY_MIN * 60_000} labels={cdLabels(t)} /></p>
         )}
-        {c.state === "recorded" && big && <Link className={`${s.btn} ${s.btnPrimary}`} href={href}>{t.watch}</Link>}
+        {c.state === "recorded" && (big || (c.missed && !watched)) &&<Link className={`${s.btn} ${s.btnPrimary}`} href={href}>{t.watch}</Link>}
       </div>
     </article>
   );

@@ -3,7 +3,7 @@ import { auth } from "../../auth";
 import Dashboard from "../../components/portal/Dashboard";
 import InstallButton from "../../components/portal/InstallButton";
 import { firstName, fmtDay, getAttendance, getClasses, tagsForGroup, visibleTo, type ClassRow } from "../../lib/classes";
-import { getNotices, type Notice } from "../../lib/content";
+import { getMaterials, getNotices, type Material, type Notice } from "../../lib/content";
 import { getT } from "../../lib/i18n";
 import s from "../../components/portal/portal.module.css";
 
@@ -17,11 +17,17 @@ export default async function DashboardPage() {
 
   const tags = tagsForGroup(st.group);
   let failed = false;
-  const [rows, allNotices, attended] = await Promise.all([
+  const [rows, allNotices, attended, allMaterials] = await Promise.all([
     getClasses().catch(() => { failed = true; return [] as ClassRow[]; }),
     getNotices().catch(() => [] as Notice[]),
     getAttendance(st.regNo),
+    getMaterials().catch(() => [] as Material[]),
   ]);
+  const materialCounts: Record<string, number> = {};
+  for (const m of allMaterials.filter(m => visibleTo(m, tags))) {
+    const k = m.type.trim().toLowerCase();
+    materialCounts[k] = (materialCounts[k] ?? 0) + 1;
+  }
   const mine = rows.filter(c => visibleTo(c, tags));
   const notices = allNotices.filter(n => visibleTo(n, tags))
     .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.date.localeCompare(a.date))
@@ -46,7 +52,7 @@ export default async function DashboardPage() {
 
       {failed && <div className={s.err}>{t.loadErr}</div>}
 
-      <Dashboard rows={mine} attendedIds={[...attended]} serverNow={Date.now()} t={t} lang={lang} />
+      <Dashboard rows={mine} attendedIds={[...attended]} serverNow={Date.now()} t={t} lang={lang} materialCounts={materialCounts} />
     </>
   );
 }

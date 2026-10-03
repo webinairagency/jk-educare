@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import ClassCard from "./ClassCard";
+import ClassCard, { cdLabels } from "./ClassCard";
+import Countdown from "./Countdown";
 import { WATCHED_KEY } from "./VideoGate";
-import { view, JOIN_EARLY_MIN, type ClassRow, type ClassView } from "../../lib/classes-shared";
+import { view, fmtDay, fmtTime, JOIN_EARLY_MIN, type ClassRow, type ClassView } from "../../lib/classes-shared";
 import type { Lang, Strings } from "../../lib/i18n";
 import ps from "./portal.module.css";
 import d from "./dashboard.module.css";
@@ -13,6 +14,14 @@ import d from "./dashboard.module.css";
 type Tab = "upcoming" | "missed" | "recordings";
 const TZ = "Asia/Kolkata";
 const DAY = 86_400_000;
+
+// Study-resource tiles. "type" matches the Type column of the materials sheet.
+const RES = [
+  { type: "notes", icon: "📘", tone: "resBlue", label: (t: Strings) => t.materials },
+  { type: "question bank", icon: "📝", tone: "resPink", label: (t: Strings) => t.tQB },
+  { type: "answer key", icon: "✅", tone: "resGreen", label: (t: Strings) => t.tKey },
+  { type: "model exam", icon: "🎯", tone: "resSun", label: (t: Strings) => t.tExam },
+] as const;
 
 const dayKey = (ms: number) =>
   new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(ms);
@@ -22,15 +31,8 @@ function readWatched() {
   catch { return new Set<string>(); }
 }
 
-function shortWait(ms: number, t: Strings) {
-  const mins = Math.max(0, Math.round(ms / 60_000));
-  const dd = Math.floor(mins / 1440), h = Math.floor((mins % 1440) / 60), m = mins % 60;
-  const parts = [dd ? `${dd}${t.cdD}` : "", h ? `${h}${t.cdH}` : "", !dd ? `${m}${t.cdM}` : ""].filter(Boolean);
-  return `${t.inPrefix} ${parts.join(" ")}`;
-}
-
-export default function Dashboard({ rows, attendedIds, serverNow, t, lang }: {
-  rows: ClassRow[]; attendedIds: string[]; serverNow: number; t: Strings; lang: Lang;
+export default function Dashboard({ rows, attendedIds, serverNow, t, lang, materialCounts }: {
+  rows: ClassRow[]; attendedIds: string[]; serverNow: number; t: Strings; lang: Lang; materialCounts: Record<string, number>;
 }) {
   const router = useRouter();
   const [now, setNow] = useState(serverNow);          // server time first, so the first render matches
@@ -80,26 +82,36 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang }: {
     (!subject || c.subject === subject) &&
     (!day || dayKey(c.startMs) === day) &&
     (!needle || `${c.subject} ${c.topic} ${c.teacher} ${c.caption}`.toLowerCase().includes(needle)));
-  const heroFirst = tab === "upcoming" && !subject && !day && !needle && shown.length > 0;
+  // The hero card above already shows the next class, so it is not repeated first in the list.
+  const skipFirst = tab === "upcoming" && !subject && !day && !needle && !!next && shown[0]?.id === next.id;
+  const cards = skipFirst ? shown.slice(1) : shown;
 
   const go = (k: Tab) => { setTab(k); setDay(""); setQ(""); };
 
   return (
-    <div>
-      {live[0] && (
-        <Link href={`/portal/class/${encodeURIComponent(live[0].id)}`} className={d.liveBanner}>
-          <span className={d.pulse} aria-hidden="true" />
-          <span className={d.liveText}><b>{t.liveNow}</b> · {live[0].subject}: {live[0].topic}</span>
-          <span className={d.liveCta}>{t.watchNow} →</span>
-        </Link>
-      )}
+    <div className={d.page}>
+      {next && (() => {
+        const isLive = next.state === "live";
+        const href = `/portal/class/${encodeURIComponent(next.id)}`;
+        return (
+          <section className={`${d.hero} ${isLive ? d.heroLive : ""}`} aria-label={isLive ? t.liveNow : t.nextClass}>
+            <div className={d.heroTop}>
+              {isLive
+                ? <span className={d.livePill}><span className={d.pulse} aria-hidden="true" />{t.liveNow}</span>
+                : <span className={d.nextPill}>{t.nextClass}</span>}
+              <span className={d.heroYt}>{t.yt}</span>
+            </div>
+            <h2 className={d.heroTitle}>{next.subject}: {next.topic}</h2>
+            <p className={d.heroMeta}>{fmtDay(next.startMs, lang)} · {fmtTime(next.startMs)}–{fmtTime(next.endMs)} · {next.teacher}</p>
+            {!isLive && (
+              <p className={d.heroCount}><Countdown openMs={next.startMs - JOIN_EARLY_MIN * 60_000} labels={cdLabels(t)} /></p>
+            )}
+            {isLive && <Link href={href} className={d.heroCta}>▶ {t.join}</Link>}
+          </section>
+        );
+      })()}
 
       <div className={d.stats}>
-        <button type="button" className={d.stat} onClick={() => go("upcoming")}>
-          <span className={d.statLabel}>{t.nextClass}</span>
-          <b>{!next ? "—" : next.state === "live" ? t.liveNow : shortWait(next.startMs - JOIN_EARLY_MIN * 60_000 - now, t)}</b>
-          {next && <span className={d.statSub}>{next.subject}</span>}
-        </button>
         <button type="button" className={`${d.stat} ${toWatch.length ? d.statAlert : ""}`} onClick={() => go("missed")}>
           <span className={d.statLabel}>{t.toWatch}</span>
           <b>{toWatch.length || "✓"}</b>
@@ -115,12 +127,27 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang }: {
         </Link>
       </div>
 
+      <section aria-label={t.resources}>
+        <h2 className={d.secTitle}>{t.resources}</h2>
+        <div className={d.res}>
+          {RES.map(r => {
+            const n = materialCounts[r.type] ?? 0;
+            return (
+              <Link key={r.type} href={`/portal/materials?type=${encodeURIComponent(r.type)}`} className={`${d.resTile} ${d[r.tone]}`}>
+                <span className={d.resIcon} aria-hidden="true">{r.icon}</span>
+                <span className={d.resText}><b>{r.label(t)}</b><span>{n ? `${n} ${t.files}` : t.soon}</span></span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
       <div className={d.week} role="group" aria-label="This week">
         {days.map((ms, i) => {
           const k = dayKey(ms);
           const on = day === k;
           return (
-            <button key={k} type="button" aria-pressed={on} className={`${d.day} ${on ? d.dayOn : ""}`}
+            <button key={k} type="button" aria-pressed={on} className={`${d.day} ${i === 0 ? d.dayToday : ""} ${on ? d.dayOn : ""}`}
               onClick={() => { setTab("upcoming"); setDay(on ? "" : k); }}>
               <span>{i === 0 ? t.today : new Intl.DateTimeFormat(lang === "ta" ? "ta-IN" : "en-IN", { timeZone: TZ, weekday: "short" }).format(ms)}</span>
               <b>{new Intl.DateTimeFormat("en-IN", { timeZone: TZ, day: "numeric" }).format(ms)}</b>
@@ -162,13 +189,10 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang }: {
 
       {shown.length === 0 ? (
         <div className={ps.empty}>{tab === "upcoming" && !day && !subject ? t.noClasses : tab === "recordings" && !needle && !subject ? t.noRecordings : t.noneHere}</div>
-      ) : (
-        <>
-          {heroFirst && <div className={d.hero}><ClassCard c={shown[0]} t={t} lang={lang} big watched={watched.has(shown[0].id)} /></div>}
-          <div className={ps.grid}>
-            {(heroFirst ? shown.slice(1) : shown).map(c => <ClassCard key={c.id} c={c} t={t} lang={lang} watched={watched.has(c.id)} />)}
-          </div>
-        </>
+      ) : cards.length > 0 && (
+        <div className={`${ps.grid} ${d.fade}`} key={`${tab}|${day}|${subject}`}>
+          {cards.map(c => <ClassCard key={c.id} c={c} t={t} lang={lang} watched={watched.has(c.id)} />)}
+        </div>
       )}
     </div>
   );
