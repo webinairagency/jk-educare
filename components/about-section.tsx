@@ -73,7 +73,7 @@ export function AboutSection() {
                 </div>
                 <div>
                   <p className="text-xs" style={{ color: 'var(--muted-foreground)' }}>Trusted by</p>
-                  <p className="font-display text-sm font-semibold" style={{ color: 'var(--foreground)' }}>500+ Students</p>
+                  <p className="font-display text-sm font-semibold" style={{ color: 'var(--foreground)' }}>18500+ Students</p>
                 </div>
               </motion.div>
             </div>
