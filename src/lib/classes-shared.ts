@@ -11,13 +11,15 @@ export type ClassView = ClassRow & { state: ClassState; attended: boolean; misse
 export const JOIN_EARLY_MIN = 10;
 const TZ = "Asia/Kolkata";
 
-/** Which subject tags a student's group gets. Class "For" column uses: All, Maths, Bio, CS (comma-separated). */
+/** Which subject tags a student's group gets. Class "For" column uses: All, Maths, Bio, CS, Commerce, CA (comma-separated). */
 export function tagsForGroup(group: string) {
   const g = group.toLowerCase();
   const tags = new Set<string>(["all"]);
   if (g.includes("math")) tags.add("maths");
   if (g.includes("bio") || g.includes("pure science")) tags.add("bio");
-  if (g.includes("cs") || g.includes("computer")) tags.add("cs");
+  if (g.includes("cs") || g.includes("computer science")) tags.add("cs");
+  if (g.includes("commerce") || g.includes("accountancy")) tags.add("commerce");
+  if (g.includes("computer application")) tags.add("ca");
   return tags;
 }
 

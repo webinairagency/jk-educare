@@ -16,7 +16,7 @@ function useForm(action: (p: FormState, f: FormData) => Promise<FormState>) {
 }
 
 const FOR = (
-  <label>For<select name="for" defaultValue="All"><option>All</option><option>Maths</option><option>Bio</option><option>CS</option><option>Maths,CS</option><option>Bio,CS</option></select></label>
+  <label>For<select name="for" defaultValue="All"><option value="All">All groups</option><option value="Maths">Maths groups</option><option value="Bio">Biology groups</option><option value="CS">Computer Science (CS-Maths)</option><option value="Commerce">Commerce &amp; Accountancy</option><option value="CA">Computer Application</option><option value="Maths,CS">Maths + CS</option><option value="Bio,CS">Biology + CS</option></select></label>
 );
 
 const subjectOptions = (
