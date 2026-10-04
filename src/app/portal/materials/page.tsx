@@ -15,7 +15,7 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
   if (!st) redirect("/link");
   const { t } = await getT();
 
-  const tags = tagsForGroup(st.group);
+  const tags = tagsForGroup(st.group, st.languages);
   const all: Material[] = await getMaterials().catch(() => []);
   const items = all.filter(m => isExam(m.subject) === exam && visibleTo(m, tags)).sort((a, b) => b.added.localeCompare(a.added));
 

@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   if (!st) redirect("/link");
   const { lang, t } = await getT();
 
-  const tags = tagsForGroup(st.group);
+  const tags = tagsForGroup(st.group, st.languages);
   let failed = false;
   const [rows, allNotices, attended, allMaterials] = await Promise.all([
     getClasses().catch(() => { failed = true; return [] as ClassRow[]; }),

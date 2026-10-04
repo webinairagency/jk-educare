@@ -24,7 +24,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
   const { lang, t } = await getT();
 
   const row = (await getClasses()).find(c => c.id === decodeURIComponent(id));
-  if (!row || !visibleTo(row, tagsForGroup(st.group))) notFound();
+  if (!row || !visibleTo(row, tagsForGroup(st.group, st.languages))) notFound();
   const attended = preview ? new Set<string>() : await getAttendance(st.regNo);
   const c = view(row, attended);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { GROUPS } from "../../lib/groups";
+import { GROUPS, LANGUAGES, DEFAULT_LANGUAGES } from "../../lib/groups";
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Baloo_Thambi_2, Hind_Madurai } from "next/font/google";
@@ -26,16 +26,18 @@ const DISTRICTS = ["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore",
 type Form = {
   name: string; gender: string; board: string; group: string; school: string;
   place: string; district: string; phone: string; parent: string; consent: boolean; website: string;
+  languages: string[];
 };
 type Result = { regNo: string; position: number; shortlisted: boolean; duplicate?: boolean; accessCode?: string; linked?: boolean };
 
-const EMPTY: Form = { name: "", gender: "", board: "", group: "", school: "", place: "", district: "", phone: "", parent: "", consent: false, website: "" };
+const EMPTY: Form = { name: "", gender: "", board: "", group: "", school: "", place: "", district: "", phone: "", parent: "", consent: false, website: "", languages: DEFAULT_LANGUAGES };
 const mobile = (v: string) => /^[6-9]\d{9}$/.test(v);
 const RULES: Record<string, [(f: Form) => boolean, string]> = {
   name: [f => f.name.trim().length >= 3, "Enter the name with initial, e.g. R. KAVYA"],
   gender: [f => !!f.gender, "Choose boy or girl"],
   board: [f => !!f.board, "Choose your board"],
   group: [f => !!f.group, "Select your group"],
+  languages: [f => f.languages.length > 0, "Choose at least one language"],
   school: [f => f.school.trim().length >= 3, "Enter your school name"],
   place: [f => f.place.trim().length >= 2, "Enter your place"],
   district: [f => !!f.district, "Select your district"],
@@ -94,7 +96,7 @@ export default function RegisterForm() {
     setBusy(true);
     try {
       const payload = { ...f, name: f.name.toUpperCase().replace(/\s+/g, " ").trim() };
-      const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, languages: payload.languages.join(",") }) });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || "Registration failed");
       setDone({ form: payload, res: j });
@@ -209,6 +211,20 @@ export default function RegisterForm() {
                 {GROUPS.map(g => <option key={g}>{g}</option>)}
               </select>
               <Err k="group" />
+            </div>
+
+            <div className={field("languages")} id="f-languages">
+              <span className={s.legend} id="lg-lang">Languages you study <span className={s.ta}>மொழிப் பாடங்கள்</span></span>
+              <div className={s.chips} role="group" aria-labelledby="lg-lang">
+                {LANGUAGES.map(l => (
+                  <span key={l}>
+                    <input type="checkbox" id={`lang-${l}`} checked={f.languages.includes(l)}
+                      onChange={() => set("languages", f.languages.includes(l) ? f.languages.filter(x => x !== l) : [...f.languages, l])} />
+                    <label htmlFor={`lang-${l}`}>{l}</label>
+                  </span>
+                ))}
+              </div>
+              <Err k="languages" />
             </div>
 
             <div className={field("school")} id="f-school">
