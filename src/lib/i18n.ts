@@ -34,6 +34,7 @@ const en = {
   watched: "Watched", joinedOf: "Joined live", allCaught: "All caught up",
   stEnded: "Class ended", joinZoom: "Join on Zoom", joinMeet: "Join on Google Meet", joinLink: "Join the class", liveClass: "Live class",
   noRecording: "This class was held on Zoom / Google Meet, so there is no recording.", joinHint: "Opens in a new tab. Zoom and Google Meet classes are not recorded here.",
+  neetJee: "NEET / JEE", neetJeeSub: "Free NEET and JEE preparation: live classes, recordings and study material.", backExam: "‹ NEET / JEE", examNone: "No NEET / JEE classes yet",
   resources: "Study resources", files: "files", soon: "Coming soon", yt: "YouTube Live", startsAt: "Starts",
 };
 type T = typeof en;
@@ -69,6 +70,7 @@ const ta: T = {
   watched: "பார்த்தது", joinedOf: "நேரலையில் கலந்தவை", allCaught: "அனைத்தும் பார்த்தாகிவிட்டது",
   stEnded: "வகுப்பு முடிந்தது", joinZoom: "Zoom-இல் சேர", joinMeet: "Google Meet-இல் சேர", joinLink: "வகுப்பில் சேர", liveClass: "நேரலை வகுப்பு",
   noRecording: "இந்த வகுப்பு Zoom / Google Meet-இல் நடந்தது, எனவே பதிவு இல்லை.", joinHint: "புதிய தாவலில் திறக்கும். Zoom, Google Meet வகுப்புகள் இங்கே பதிவு செய்யப்படாது.",
+  neetJee: "NEET / JEE", neetJeeSub: "இலவச NEET, JEE தயாரிப்பு: நேரலை வகுப்புகள், பதிவுகள், படிப்புப் பொருட்கள்.", backExam: "‹ NEET / JEE", examNone: "NEET / JEE வகுப்புகள் இன்னும் இல்லை",
   resources: "படிப்பு வளங்கள்", files: "கோப்புகள்", soon: "விரைவில்", yt: "YouTube நேரலை", startsAt: "தொடக்கம்",
 };
 

@@ -8,7 +8,7 @@ import Countdown from "../../../../components/portal/Countdown";
 import VideoGate from "../../../../components/portal/VideoGate";
 import { cdLabels } from "../../../../components/portal/ClassCard";
 import {
-  calendarLink, fmtDay, fmtTime, getAttendance, getClasses, isExternalLive, JOIN_EARLY_MIN, liveKind,
+  calendarLink, fmtDay, fmtTime, getAttendance, getClasses, isExam, isExternalLive, JOIN_EARLY_MIN, liveKind,
   tagsForGroup, videoSrc, view, visibleTo, youtubeWatchUrl,
 } from "../../../../lib/classes";
 import { callScript } from "../../../../lib/script";
@@ -46,7 +46,7 @@ export default async function ClassPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className={s.detail} style={{ maxWidth: 760 }}>
-      <Link href="/portal" className={s.back}>{t.back}</Link>
+      <Link href={isExam(c.subject) ? "/portal/neet-jee" : "/portal"} className={s.back}>{isExam(c.subject) ? t.backExam : t.back}</Link>
 
       {liveSrc ? (
         <div className={s.player}>

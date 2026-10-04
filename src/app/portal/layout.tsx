@@ -50,6 +50,7 @@ export default async function PortalLayout({ children }: { children: React.React
           <NavLinks items={[
             { href: "/portal", label: t.home },
             { href: "/portal/materials", label: t.materials },
+            { href: "/portal/neet-jee", label: t.neetJee },
             { href: "/portal/progress", label: t.progress },
           ]} />
           <form action={setLang} style={{ marginLeft: "auto" }}>
