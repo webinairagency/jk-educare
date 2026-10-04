@@ -12,7 +12,7 @@ function fail(error: string, status = 400) {
 
 // GET /api/register -> seat counts per pool
 export async function GET() {
-  if (!SCRIPT_URL) return NextResponse.json({ ok: true, test: true, limit: 50, pools: { STATE: 0, CBSE: 0 } });
+  if (!SCRIPT_URL) return NextResponse.json({ ok: true, test: true, pools: { STATE: 0, CBSE: 0 } });
   try {
     const r = await fetch(`${SCRIPT_URL}?action=stats`, { cache: "no-store" });
     return NextResponse.json(await r.json());

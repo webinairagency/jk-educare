@@ -10,7 +10,8 @@
  *  5. Deploy > Manage deployments > Edit > New version (URL stays the same)
  */
 const SHEET_NAME = 'Batch I';
-const LIMIT = 50;
+const LIMIT = 0;   // 0 = no seat limit. Everyone who registers is shortlisted and gets an access code.
+const isShortlisted_ = position => !LIMIT || position <= LIMIT;
 const BATCH_CODE = 'B1';
 const HEADERS = ['Timestamp','Reg No','Name','Class & Group','Board','Pool','Gender',
   'Student WhatsApp','Parent Mobile','School','Place','District','Pool Position','Status','Called?','Notes',
@@ -120,7 +121,7 @@ function register_(d) {
         if (String(r[C.phone]) === d.phone && String(r[C.name]) === name) {
           // The code is never re-sent here (anyone who knows a name and number could take the seat).
           // A student who lost it asks JK sir, who can read it in the sheet.
-          return json_({ ok: true, duplicate: true, regNo: r[C.regNo], position: r[12], shortlisted: r[12] <= LIMIT, linked: !!r[C.email], pools: poolCounts_(sh) });
+          return json_({ ok: true, duplicate: true, regNo: r[C.regNo], position: r[12], shortlisted: isShortlisted_(r[12]) || r[C.status] === 'Shortlisted', linked: !!r[C.email], pools: poolCounts_(sh) });
         }
       }
     }
@@ -128,7 +129,7 @@ function register_(d) {
     const counts = poolCounts_(sh);
     const position = counts[pool] + 1;
     const regNo = 'JK-' + BATCH_CODE + '-' + String(Math.max(last, 1)).padStart(4, '0');
-    const shortlisted = position <= LIMIT;
+    const shortlisted = isShortlisted_(position);
     // Shortlisted students get their 6-digit access code straight away (shown on the success screen)
     const code = shortlisted ? String(Math.floor(100000 + Math.random() * 900000)) : '';
     sh.appendRow([new Date(), regNo, name, clean_(d.group, 40), d.board, pool, clean_(d.gender, 10),
