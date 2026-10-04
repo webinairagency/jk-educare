@@ -1,4 +1,5 @@
 // Pure helpers: safe to use in both server and client components.
+import { GROUP_DEFS, groupKey, isKnownSubject, normSubject, subjectTag } from "./groups";
 
 export type ClassRow = {
   id: string; subject: string; topic: string; teacher: string; for: string;
@@ -11,22 +12,36 @@ export type ClassView = ClassRow & { state: ClassState; attended: boolean; misse
 export const JOIN_EARLY_MIN = 10;
 const TZ = "Asia/Kolkata";
 
-/** Which subject tags a student's group gets. Class "For" column uses: All, Maths, Bio, CS, Commerce, CA (comma-separated). */
+/**
+ * What a student's group unlocks: the group itself plus one tag per subject the group studies.
+ * Admin preview ("All groups") unlocks everything. A group we don't recognise (an old sheet value)
+ * also unlocks everything, so nobody is ever locked out by a spelling difference.
+ */
 export function tagsForGroup(group: string) {
-  const g = group.toLowerCase();
   const tags = new Set<string>(["all"]);
-  if (g.includes("admin preview")) { ["maths", "bio", "cs", "commerce", "ca"].forEach(x => tags.add(x)); return tags; }
-  if (g.includes("math")) tags.add("maths");
-  if (g.includes("bio") || g.includes("pure science")) tags.add("bio");
-  if (g.includes("cs") || g.includes("computer science")) tags.add("cs");
-  if (g.includes("commerce") || g.includes("accountancy")) tags.add("commerce");
-  if (g.includes("computer application")) tags.add("ca");
+  const everything = () => { GROUP_DEFS.forEach(d => { tags.add(d.key); d.subjects.forEach(s => tags.add(subjectTag(s))); }); return tags; };
+  if ((group || "").toLowerCase().includes("admin preview")) return everything();
+  const key = groupKey(group);
+  const def = GROUP_DEFS.find(d => d.key === key);
+  if (!def) return everything();
+  tags.add(def.key);
+  def.subjects.forEach(s => tags.add(subjectTag(s)));
   return tags;
 }
 
-export function visibleTo(c: { for: string }, tags: Set<string>) {
+/**
+ * A class / material / notice is visible when:
+ *  - its subject belongs to the student's group (NEET, JEE, General and unknown subjects are open to all), and
+ *  - its "For" column is empty, "All", or names the student's group (e.g. bio-maths). Old values
+ *    like Maths / Bio / CS are ignored; the subject now decides.
+ */
+export function visibleTo(c: { for: string; subject?: string }, tags: Set<string>) {
   const f = (c.for || "All").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
-  return f.length === 0 || f.some(t => tags.has(t));
+  const limits = f.filter(x => GROUP_DEFS.some(d => d.key === x));
+  if (limits.length > 0 && !limits.some(x => tags.has(x))) return false;
+  const sub = c.subject;
+  if (!sub || isExam(sub) || normSubject(sub) === "general" || !isKnownSubject(sub)) return true;
+  return tags.has(subjectTag(sub));
 }
 
 export function view(c: ClassRow, attended: Set<string>, now = Date.now()): ClassView {

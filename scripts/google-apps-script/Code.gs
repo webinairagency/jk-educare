@@ -105,7 +105,7 @@ function register_(d) {
   const lock = LockService.getScriptLock();
   try {
     lock.waitLock(20000);
-    if (d.website) return json_({ ok: true, regNo: 'JK-' + BATCH_CODE + '-0000', shortlisted: false, position: 999 });
+    if (d.website) return json_({ ok: true, regNo: 'JK-0000', shortlisted: false, position: 999 });
     const mobile = /^[6-9]\d{9}$/;
     if (!d.name || String(d.name).length < 3) return json_({ ok: false, error: 'Name is missing' });
     if (!mobile.test(d.phone) || !mobile.test(d.parent)) return json_({ ok: false, error: 'Invalid mobile number' });
@@ -128,7 +128,7 @@ function register_(d) {
     const pool = d.board === 'CBSE' ? 'CBSE' : 'STATE';
     const counts = poolCounts_(sh);
     const position = counts[pool] + 1;
-    const regNo = 'JK-' + BATCH_CODE + '-' + String(Math.max(last, 1)).padStart(4, '0');
+    const regNo = 'JK-' + String(Math.max(last, 1)).padStart(4, '0');   // JK-0001, JK-0002 ...
     const shortlisted = isShortlisted_(position);
     // Shortlisted students get their 6-digit access code straight away (shown on the success screen)
     const code = shortlisted ? String(Math.floor(100000 + Math.random() * 900000)) : '';

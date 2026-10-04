@@ -17,6 +17,9 @@ const COLOURS: Record<string, [string, string]> = {
   commerce: ["#6B4E0B", "#FFF0B8"],
   accountancy: ["#6B4E0B", "#FFF0B8"],
   neet: ["#0F6B3A", "#FFDD1F"],
+  economics: ["#7A4A0E", "#FFE9C7"],
+  history: ["#7B3F1D", "#FFDCC4"],
+  "political science": ["#1F4E79", "#D6EBFF"],
   jee: ["#7A1FA2", "#FFDD1F"],
 };
 const pick = (s: string): [string, string] => COLOURS[s.trim().toLowerCase()] ?? ["#0F2766", "#FFDD1F"];

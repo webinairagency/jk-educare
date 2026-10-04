@@ -12,7 +12,7 @@ export async function linkAccount(_prev: LinkState, fd: FormData): Promise<LinkS
 
   const regNo = String(fd.get("regNo") || "").toUpperCase().replace(/\s+/g, "");
   const code = String(fd.get("code") || "").replace(/\D/g, "");
-  if (!/^JK-B\d+-\d{4}$/.test(regNo)) return { error: "Roll number should look like JK-B1-0007." };
+  if (!/^JK-(B\d+-)?\d{4,}$/.test(regNo)) return { error: "Roll number should look like JK-0007." };
   if (code.length !== 6) return { error: "The access code has 6 digits." };
 
   try {

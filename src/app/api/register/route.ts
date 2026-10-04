@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   }
 
   // Honeypot filled = bot. Pretend success, save nothing.
-  if (d.website) return NextResponse.json({ ok: true, regNo: "JK-B1-0000", position: 999, shortlisted: false });
+  if (d.website) return NextResponse.json({ ok: true, regNo: "JK-0000", position: 999, shortlisted: false });
 
   const s = (k: string) => String(d[k] ?? "").trim();
   if (s("name").length < 3) return fail("Name is missing");

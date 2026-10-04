@@ -1,6 +1,7 @@
 import { SUBJECTS, EXAM_PREP } from "../../lib/subjects";
+import { GROUP_DEFS } from "../../lib/groups";
 
-const KNOWN_FOR = ["All", "Maths", "Bio", "CS", "Commerce", "CA", "Maths,CS", "Bio,CS"];
+const KNOWN_FOR = ["All", ...GROUP_DEFS.map(g => g.key)];
 
 /** Subject choices. `current` keeps an old free-typed subject selectable when editing. */
 export function SubjectOptions({ current }: { current?: string }) {
@@ -17,17 +18,11 @@ export function SubjectOptions({ current }: { current?: string }) {
 /** Who sees an item. Values match the "For" column of the sheet. */
 export function ForSelect({ current = "All" }: { current?: string }) {
   return (
-    <label>For
+    <label>Show to
       <select name="for" defaultValue={current || "All"}>
         {current && !KNOWN_FOR.includes(current) && <option value={current}>{current}</option>}
-        <option value="All">All groups</option>
-        <option value="Maths">Maths groups</option>
-        <option value="Bio">Biology groups</option>
-        <option value="CS">Computer Science (CS-Maths)</option>
-        <option value="Commerce">Commerce &amp; Accountancy</option>
-        <option value="CA">Computer Application</option>
-        <option value="Maths,CS">Maths + CS</option>
-        <option value="Bio,CS">Biology + CS</option>
+        <option value="All">Every group that studies this subject</option>
+        {GROUP_DEFS.map(g => <option key={g.key} value={g.key}>Only {g.name.replace("XII – ", "")}</option>)}
       </select>
     </label>
   );

@@ -16,12 +16,7 @@ const CONTACT = "919842463437";
 // student sees the COMMUNITY link instead (if that is set).
 const WA_COMMUNITY = "https://chat.whatsapp.com/IYZ7an3cKCfI4LzwcOcR2m";
 const WA_GROUPS: Record<string, string> = {
-  "XII – Bio-Maths": "https://chat.whatsapp.com/REPLACE_BIO_MATHS",
-  "XII – CS-Maths": "https://chat.whatsapp.com/REPLACE_CS_MATHS",
-  "XII – Pure Science (Bio)": "https://chat.whatsapp.com/REPLACE_PURE_SCIENCE",
-  "XII – Commerce & Accountancy": "https://chat.whatsapp.com/REPLACE_COMMERCE",
-  "XII – Computer Application": "https://chat.whatsapp.com/REPLACE_COMPUTER_APPLICATION",
-  "XII – Other": "https://chat.whatsapp.com/REPLACE_OTHER",
+  // "XII – Bio-Maths": "https://chat.whatsapp.com/....",   (add a group's own invite link here when you have one)
 };
 const waLink = (group: string) => [WA_GROUPS[group], WA_COMMUNITY].find(l => l && !l.includes("REPLACE")) ?? "";
 /* ========================================== */
