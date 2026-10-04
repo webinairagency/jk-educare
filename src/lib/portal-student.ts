@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { auth } from "../auth";
 import { isAdminEmail } from "./admin";
@@ -12,7 +13,7 @@ export const PREVIEW_ALL = "All groups";
  * An admin who is not linked to a roll number gets a read-only "preview student" so they can
  * see the portal exactly as students do (no roll number, no attendance recorded).
  */
-export async function portalStudent(): Promise<{ st: Student | null; preview: boolean; admin: boolean; previewGroup: string }> {
+export const portalStudent = cache(async function portalStudent(): Promise<{ st: Student | null; preview: boolean; admin: boolean; previewGroup: string }> {
   const session = await auth();
   const admin = isAdminEmail(session?.user?.email);
   if (session?.student) return { st: session.student, preview: false, admin, previewGroup: "" };
@@ -26,4 +27,4 @@ export async function portalStudent(): Promise<{ st: Student | null; preview: bo
     group: previewGroup === PREVIEW_ALL ? "All groups (admin preview)" : previewGroup,
   };
   return { st, preview: true, admin, previewGroup };
-}
+});

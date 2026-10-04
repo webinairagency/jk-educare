@@ -138,7 +138,7 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang, mater
             return (
               <Link key={r.type} href={`/portal/materials?type=${encodeURIComponent(r.type)}${track === "exam" ? "&track=exam" : ""}`} className={`${d.resTile} ${d[r.tone]}`}>
                 <span className={d.resIcon} aria-hidden="true">{r.icon}</span>
-                <span className={d.resText}><b>{r.label(t)}</b><span>{n ? `${n} ${t.files}` : t.soon}</span></span>
+                <span className={d.resText}><b>{r.label(t)}</b><span>{n ? `${n} ${n === 1 ? t.file : t.files}` : t.soon}</span></span>
               </Link>
             );
           })}

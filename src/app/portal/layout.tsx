@@ -8,6 +8,7 @@ import { setLang, setPreviewGroup } from "./actions";
 import { portalStudent, PREVIEW_ALL } from "../../lib/portal-student";
 import { GROUPS } from "../../lib/groups";
 import NavLinks from "../../components/portal/NavLinks";
+import BottomNav from "../../components/portal/BottomNav";
 import { display, body } from "../../components/portal/fonts";
 import s from "../../components/portal/portal.module.css";
 
@@ -40,6 +41,10 @@ export default async function PortalLayout({ children }: { children: React.React
         <div className={s.barIn}>
           <Link href="/portal" className={s.logo}><Image src="/jk-logo-96.png" alt="JK Edu-Care Services" width={40} height={40} priority /> Classes</Link>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <form action={setLang} className={s.langMobile}>
+              <input type="hidden" name="lang" value={lang === "ta" ? "en" : "ta"} />
+              <button className={s.langBtn} type="submit">{t.switchTo}</button>
+            </form>
             <div className={s.who}>{st.name}<br />{st.regNo}</div>
             <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }); }}>
               <button className={s.signout} type="submit">{t.signOut}</button>
@@ -62,12 +67,18 @@ export default async function PortalLayout({ children }: { children: React.React
         </div>
       </nav>
       <main className={`${s.main} ${admin ? s.mainAdmin : ""}`}>{children}</main>
+      <BottomNav items={[
+        { href: "/portal", label: t.home, icon: "🏠" },
+        { href: "/portal/materials", label: t.materials, icon: "📚" },
+        { href: "/portal/neet-jee", label: t.neetJee, icon: "🎯" },
+        { href: "/portal/progress", label: t.progress, icon: "📈" },
+      ]} />
       {admin && (
         <div className={s.adminBar} role="region" aria-label="Admin">
           <Link href="/admin" className={s.adminBack}>← Admin portal</Link>
           {preview ? (
             <form action={setPreviewGroup} className={s.adminView}>
-              <label>Viewing as
+              <label><span className={s.adminLbl}>Viewing as</span>
                 <select name="group" defaultValue={previewGroup}>
                   {[PREVIEW_ALL, ...GROUPS].map(g => <option key={g} value={g}>{g}</option>)}
                 </select>
