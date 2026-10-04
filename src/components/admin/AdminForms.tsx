@@ -1,6 +1,7 @@
 "use client";
 import { useActionState, useEffect, useRef } from "react";
 import { addClass, addMaterial, addNotice, type FormState } from "../../app/admin/actions";
+import { SUBJECTS, EXAM_PREP } from "../../lib/subjects";
 import a from "./admin.module.css";
 
 function Msg({ s }: { s: FormState }) {
@@ -18,14 +19,21 @@ const FOR = (
   <label>For<select name="for" defaultValue="All"><option>All</option><option>Maths</option><option>Bio</option><option>CS</option><option>Maths,CS</option><option>Bio,CS</option></select></label>
 );
 
-export default function AdminForms({ subjects }: { subjects: string[] }) {
+const subjectOptions = (
+  <>
+    <optgroup label="+2 subjects">{SUBJECTS.map(s => <option key={s} value={s}>{s}</option>)}</optgroup>
+    <optgroup label="Exam preparation">{EXAM_PREP.map(s => <option key={s} value={s}>{s}</option>)}</optgroup>
+  </>
+);
+
+export default function AdminForms() {
   const c = useForm(addClass), m = useForm(addMaterial), n = useForm(addNotice);
   return (
     <div className={a.forms}>
       <details className={a.card} open>
         <summary>+ Add class</summary>
         <form action={c.run} ref={c.ref} className={a.form}>
-          <label>Subject<input name="subject" required maxLength={40} list="subjects" /></label>
+          <label>Subject<select name="subject" required defaultValue="">{<option value="" disabled>Choose…</option>}{subjectOptions}</select></label>
           <label>Topic<input name="topic" required maxLength={120} /></label>
           <label>Teacher<input name="teacher" defaultValue="JK Sir" maxLength={60} /></label>
           <label>Start (IST)<input name="start" type="datetime-local" required /></label>
@@ -43,7 +51,7 @@ export default function AdminForms({ subjects }: { subjects: string[] }) {
         <summary>+ Add study material</summary>
         <form action={m.run} ref={m.ref} className={a.form}>
           <label className={a.wide}>Title<input name="title" required maxLength={120} /></label>
-          <label>Subject<input name="subject" maxLength={40} list="subjects" /></label>
+          <label>Subject<select name="subject" defaultValue="General"><option>General</option>{subjectOptions}</select></label>
           <label>Type<select name="type" defaultValue="notes"><option value="notes">Notes</option><option value="question bank">Question bank</option><option value="answer key">Answer key</option><option value="model exam">Model exam</option></select></label>
           {FOR}
           <label className={a.wide}>Link (Google Drive etc.)<input name="link" type="url" required placeholder="https://drive.google.com/..." /></label>
@@ -64,7 +72,6 @@ export default function AdminForms({ subjects }: { subjects: string[] }) {
           <Msg s={n.state} />
         </form>
       </details>
-      <datalist id="subjects">{subjects.map(s => <option key={s} value={s} />)}</datalist>
     </div>
   );
 }

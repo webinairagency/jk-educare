@@ -10,6 +10,14 @@ const COLOURS: Record<string, [string, string]> = {
   maths: ["#5B2A86", "#F3D7FF"],
   mathematics: ["#5B2A86", "#F3D7FF"],
   "computer science": ["#0E6B73", "#B8F3F0"],
+  "computer application": ["#0B5F8A", "#C7E8FF"],
+  english: ["#8A1C4A", "#FFD6E8"],
+  tamil: ["#9A2B1F", "#FFE1C2"],
+  "commerce & accountancy": ["#6B4E0B", "#FFF0B8"],
+  commerce: ["#6B4E0B", "#FFF0B8"],
+  accountancy: ["#6B4E0B", "#FFF0B8"],
+  neet: ["#0F6B3A", "#FFDD1F"],
+  jee: ["#7A1FA2", "#FFDD1F"],
 };
 const pick = (s: string): [string, string] => COLOURS[s.trim().toLowerCase()] ?? ["#0F2766", "#FFDD1F"];
 
