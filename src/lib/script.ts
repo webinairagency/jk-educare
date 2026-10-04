@@ -1,5 +1,5 @@
 // Server-only helper: talks to the Apps Script backend with the shared secret.
-export type Student = { regNo: string; name: string; group: string; board: string; gender: string; status: string };
+export type Student = { regNo: string; name: string; group: string; board: string; gender: string; status: string; languages?: string };
 
 export class ScriptError extends Error {}
 

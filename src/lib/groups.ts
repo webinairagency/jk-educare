@@ -1,24 +1,34 @@
-// The +2 groups and the subjects each one studies. A student who picks a group automatically
-// gets the classes, study material and updates for those subjects (and for NEET / JEE).
-// Pure data and helpers, safe for server and client components.
+// The +2 groups and what each one studies. A student who picks a group (and their languages when
+// registering) automatically gets the classes, study material and updates for those subjects, plus
+// NEET / JEE / General for everyone. Pure data and helpers, safe for server and client components.
 
 export type GroupDef = { name: string; key: string; subjects: string[] };
 
+/** Language subjects. Each student chooses theirs when registering. */
+export const LANGUAGES = ["Tamil", "English", "French", "Hindi"];
+export const DEFAULT_LANGUAGES = ["Tamil", "English"];
+
+// `subjects` are the non-language subjects. The last four groups have no subject list yet, so they see
+// languages, NEET / JEE / General and anything an admin sends to their group with "Show to".
 export const GROUP_DEFS: GroupDef[] = [
-  { name: "XII – Bio-Maths", key: "bio-maths", subjects: ["Tamil", "English", "Maths", "Physics", "Chemistry", "Biology"] },
-  { name: "XII – CS-Maths", key: "cs-maths", subjects: ["Tamil", "English", "Maths", "Physics", "Chemistry", "Computer Science"] },
-  { name: "XII – Pure Science", key: "pure-science", subjects: ["Tamil", "English", "Physics", "Chemistry", "Botany", "Zoology"] },
-  { name: "XII – Bio-Computer", key: "bio-computer", subjects: ["Tamil", "English", "Physics", "Chemistry", "Biology", "Computer Science"] },
-  { name: "XII – Arts-Computer", key: "arts-computer", subjects: ["Tamil", "English", "Accountancy", "Commerce", "Economics", "Computer Science"] },
-  { name: "XII – Arts-History", key: "arts-history", subjects: ["Tamil", "English", "Accountancy", "Commerce", "Economics", "History"] },
-  { name: "XII – Arts-Political Science", key: "arts-political-science", subjects: ["Tamil", "English", "Accountancy", "Commerce", "Economics", "Political Science"] },
+  { name: "XII – Bio-Maths", key: "bio-maths", subjects: ["Maths", "Physics", "Chemistry", "Biology"] },
+  { name: "XII – CS-Maths", key: "cs-maths", subjects: ["Maths", "Physics", "Chemistry", "Computer Science"] },
+  { name: "XII – Pure Science", key: "pure-science", subjects: ["Physics", "Chemistry", "Botany", "Zoology"] },
+  { name: "XII – Bio-Computer", key: "bio-computer", subjects: ["Physics", "Chemistry", "Biology", "Computer Science"] },
+  { name: "XII – Arts-Computer", key: "arts-computer", subjects: ["Accountancy", "Commerce", "Economics", "Computer Science"] },
+  { name: "XII – Arts-History", key: "arts-history", subjects: ["Accountancy", "Commerce", "Economics", "History"] },
+  { name: "XII – Arts-Political Science", key: "arts-political-science", subjects: ["Accountancy", "Commerce", "Economics", "Political Science"] },
+  { name: "XII – Nursing Group", key: "nursing", subjects: [] },
+  { name: "XII – Agri Group", key: "agri", subjects: [] },
+  { name: "XII – Vocational Group", key: "vocational", subjects: [] },
+  { name: "XII – Others", key: "others", subjects: [] },
 ];
 
 /** Names shown in the registration dropdown and the admin preview. */
 export const GROUPS = GROUP_DEFS.map(g => g.name);
 
-/** Every +2 subject, for the admin Subject list. */
-export const SUBJECTS = Array.from(new Set(GROUP_DEFS.flatMap(g => g.subjects)));
+/** Every +2 subject, for the admin Subject list (languages first). */
+export const SUBJECTS = Array.from(new Set([...LANGUAGES, ...GROUP_DEFS.flatMap(g => g.subjects)]));
 
 /** Lower-case, one space between words, a few spelling variants folded together. */
 export function normSubject(s: string) {
@@ -28,6 +38,13 @@ export function normSubject(s: string) {
 export const subjectTag = (s: string) => "subject:" + normSubject(s);
 const KNOWN_SUBJECTS = new Set(SUBJECTS.map(normSubject));
 export const isKnownSubject = (s: string) => KNOWN_SUBJECTS.has(normSubject(s));
+
+/** "Tamil, french" -> ["Tamil", "French"]. null when nothing valid was recorded (older students). */
+export function parseLanguages(raw?: string | string[] | null): string[] | null {
+  const list = (Array.isArray(raw) ? raw : String(raw ?? "").split(",")).map(x => x.trim().toLowerCase());
+  const out = LANGUAGES.filter(l => list.includes(l.toLowerCase()));
+  return out.length ? out : null;
+}
 
 /** Which group a sheet value like "XII – Bio-Maths" or "ARTS - COMPUTER" belongs to (null if unrecognised). */
 export function groupKey(group: string): string | null {
@@ -40,6 +57,10 @@ export function groupKey(group: string): string | null {
     ["arts-history", ["arts-history"]],
     ["arts-political-science", ["arts-political"]],
     ["pure-science", ["pure-science"]],
+    ["nursing", ["nursing"]],
+    ["agri", ["agri"]],
+    ["vocational", ["vocational"]],
+    ["others", ["others"]],
   ];
   for (const [key, needles] of order) if (needles.some(n => g.includes(n))) return key;
   return null;

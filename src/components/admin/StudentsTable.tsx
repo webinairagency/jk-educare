@@ -43,11 +43,11 @@ export default function StudentsTable({ students }: { students: AdminStudent[] }
 
       <div className={a.tableWrap}>
         <table className={a.table}>
-          <thead><tr><th>Roll no</th><th>Name</th><th>Group</th><th>Board</th><th>School</th><th>Place</th><th>District</th><th>Status</th><th>Signed in</th><th></th></tr></thead>
+          <thead><tr><th>Roll no</th><th>Name</th><th>Group</th><th>Languages</th><th>Board</th><th>School</th><th>Place</th><th>District</th><th>Status</th><th>Signed in</th><th></th></tr></thead>
           <tbody>
             {shown.map(x => (
               <tr key={x.regNo}>
-                <td>{x.regNo}</td><td>{x.name}</td><td>{x.group}</td><td>{x.board}</td><td>{x.school}</td><td>{x.place}</td><td>{x.district}</td><td>{x.status}</td><td>{x.linked ? "Yes" : "—"}</td>
+                <td>{x.regNo}</td><td>{x.name}</td><td>{x.group}</td><td>{x.languages || "—"}</td><td>{x.board}</td><td>{x.school}</td><td>{x.place}</td><td>{x.district}</td><td>{x.status}</td><td>{x.linked ? "Yes" : "—"}</td>
                 <td>
                   <form action={run} onSubmit={e => { if (!window.confirm(x.linked ? `Unlink ${x.name}'s Google account and make a new code?` : `Make a new access code for ${x.name}?`)) e.preventDefault(); }}>
                     <input type="hidden" name="regNo" value={x.regNo} />
@@ -56,7 +56,7 @@ export default function StudentsTable({ students }: { students: AdminStudent[] }
                 </td>
               </tr>
             ))}
-            {shown.length === 0 && <tr><td colSpan={10}>No students match.</td></tr>}
+            {shown.length === 0 && <tr><td colSpan={11}>No students match.</td></tr>}
           </tbody>
         </table>
       </div>

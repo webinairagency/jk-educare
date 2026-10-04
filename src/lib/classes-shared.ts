@@ -1,5 +1,5 @@
 // Pure helpers: safe to use in both server and client components.
-import { GROUP_DEFS, groupKey, isKnownSubject, normSubject, subjectTag } from "./groups";
+import { GROUP_DEFS, LANGUAGES, groupKey, isKnownSubject, normSubject, parseLanguages, subjectTag } from "./groups";
 
 export type ClassRow = {
   id: string; subject: string; topic: string; teacher: string; for: string;
@@ -17,21 +17,26 @@ const TZ = "Asia/Kolkata";
  * Admin preview ("All groups") unlocks everything. A group we don't recognise (an old sheet value)
  * also unlocks everything, so nobody is ever locked out by a spelling difference.
  */
-export function tagsForGroup(group: string) {
+export function tagsForGroup(group: string, languages?: string) {
   const tags = new Set<string>(["all"]);
-  const everything = () => { GROUP_DEFS.forEach(d => { tags.add(d.key); d.subjects.forEach(s => tags.add(subjectTag(s))); }); return tags; };
+  const everything = () => {
+    GROUP_DEFS.forEach(d => { tags.add(d.key); d.subjects.forEach(s => tags.add(subjectTag(s))); });
+    LANGUAGES.forEach(l => tags.add(subjectTag(l)));
+    return tags;
+  };
   if ((group || "").toLowerCase().includes("admin preview")) return everything();
-  const key = groupKey(group);
-  const def = GROUP_DEFS.find(d => d.key === key);
+  const def = GROUP_DEFS.find(d => d.key === groupKey(group));
   if (!def) return everything();
   tags.add(def.key);
   def.subjects.forEach(s => tags.add(subjectTag(s)));
+  // languages: the ones the student chose when registering (older students with none recorded see all)
+  (parseLanguages(languages) ?? LANGUAGES).forEach(l => tags.add(subjectTag(l)));
   return tags;
 }
 
 /**
  * A class / material / notice is visible when:
- *  - its subject belongs to the student's group (NEET, JEE, General and unknown subjects are open to all), and
+ *  - its subject is one of the student's group subjects or chosen languages (NEET, JEE, General and unknown subjects are open to all), and
  *  - its "For" column is empty, "All", or names the student's group (e.g. bio-maths). Old values
  *    like Maths / Bio / CS are ignored; the subject now decides.
  */
@@ -39,6 +44,7 @@ export function visibleTo(c: { for: string; subject?: string }, tags: Set<string
   const f = (c.for || "All").toLowerCase().split(",").map(s => s.trim()).filter(Boolean);
   const limits = f.filter(x => GROUP_DEFS.some(d => d.key === x));
   if (limits.length > 0 && !limits.some(x => tags.has(x))) return false;
+  if (limits.length > 0) return true;   // sent to this group on purpose, whatever the subject
   const sub = c.subject;
   if (!sub || isExam(sub) || normSubject(sub) === "general" || !isKnownSubject(sub)) return true;
   return tags.has(subjectTag(sub));

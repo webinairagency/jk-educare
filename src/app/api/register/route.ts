@@ -39,6 +39,8 @@ export async function POST(req: Request) {
   if (!BOARDS.includes(s("board"))) return fail("Invalid board");
   if (!s("group") || !s("school") || !s("place") || !s("district") || !s("gender")) return fail("Some details are missing");
   if (d.consent !== true) return fail("Parent consent is required");
+  const langs = (Array.isArray(d.languages) ? d.languages.join(",") : String(d.languages ?? "")).split(",").map(x => x.trim()).filter(x => ["Tamil", "English", "French", "Hindi"].includes(x));
+  if (langs.length === 0) return fail("Choose at least one language");
 
   if (!SCRIPT_URL) return fail("APPS_SCRIPT_URL is not set on the server", 500);
 
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         name: s("name").toUpperCase(), gender: s("gender"), board: s("board"), group: s("group"),
         school: s("school"), place: s("place"), district: s("district"),
-        phone: s("phone"), parent: s("parent"), consent: true,
+        phone: s("phone"), parent: s("parent"), consent: true, languages: langs.join(","),
       }),
       cache: "no-store",
     });

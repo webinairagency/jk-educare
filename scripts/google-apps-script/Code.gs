@@ -15,9 +15,9 @@ const isShortlisted_ = position => !LIMIT || position <= LIMIT;
 const BATCH_CODE = 'B1';
 const HEADERS = ['Timestamp','Reg No','Name','Class & Group','Board','Pool','Gender',
   'Student WhatsApp','Parent Mobile','School','Place','District','Pool Position','Status','Called?','Notes',
-  'Email','Access Code','Linked At'];
+  'Email','Access Code','Linked At','Languages'];
 // 0-based column indexes in the Batch I tab
-const C = { regNo: 1, name: 2, group: 3, board: 4, pool: 5, gender: 6, phone: 7, status: 13, email: 16, code: 17, linkedAt: 18 };
+const C = { regNo: 1, name: 2, group: 3, board: 4, pool: 5, gender: 6, phone: 7, status: 13, email: 16, code: 17, linkedAt: 18, languages: 19 };
 
 const CLASS_HEADERS = ['Class ID','Subject','Topic','Teacher','For','Start','Duration (min)','YouTube Link','Recording Link (optional)','Notes Link','Caption','Hidden'];
 const ATT_HEADERS = ['Timestamp','Reg No','Class ID'];
@@ -129,12 +129,14 @@ function register_(d) {
     const counts = poolCounts_(sh);
     const position = counts[pool] + 1;
     const regNo = 'JK-' + String(Math.max(last, 1)).padStart(4, '0');   // JK-0001, JK-0002 ...
+    const langs = String(d.languages || '').split(',').map(x => x.trim()).filter(x => ['Tamil', 'English', 'French', 'Hindi'].indexOf(x) >= 0);
+    const languages = (langs.length ? langs : ['Tamil', 'English']).join(',');
     const shortlisted = isShortlisted_(position);
     // Shortlisted students get their 6-digit access code straight away (shown on the success screen)
     const code = shortlisted ? String(Math.floor(100000 + Math.random() * 900000)) : '';
     sh.appendRow([new Date(), regNo, name, clean_(d.group, 40), d.board, pool, clean_(d.gender, 10),
       d.phone, d.parent, clean_(d.school, 100), clean_(d.place, 60), clean_(d.district, 40), position,
-      shortlisted ? 'Shortlisted' : 'Waitlist', '', '', '', code]);
+      shortlisted ? 'Shortlisted' : 'Waitlist', '', '', '', code, '', languages]);
     if (code) sh.getRange(sh.getLastRow(), C.code + 1).setNumberFormat('@').setValue(code);
     counts[pool]++;
     return json_({ ok: true, regNo, pool, position, shortlisted, accessCode: code, pools: counts });
@@ -170,7 +172,7 @@ function portal_(d) {
 }
 
 function studentObj_(r) {
-  return { regNo: String(r[C.regNo]), name: String(r[C.name]), group: String(r[C.group]), board: String(r[C.board]), gender: String(r[C.gender]), status: String(r[C.status]) };
+  return { regNo: String(r[C.regNo]), name: String(r[C.name]), group: String(r[C.group]), board: String(r[C.board]), gender: String(r[C.gender]), status: String(r[C.status]), languages: String(r[C.languages] || '') };
 }
 
 function findByEmail_(email) {
@@ -311,7 +313,7 @@ function adminData_() {
   const rows = students_().getDataRange().getValues().slice(1);
   // no phone numbers, access codes or emails go to the admin page
   const students = rows.filter(r => r[C.regNo]).map(r => ({ regNo: String(r[C.regNo]), name: String(r[C.name]), group: String(r[C.group]), board: String(r[C.board]),
-    school: String(r[9]), place: String(r[10]), district: String(r[11]), status: String(r[C.status]), linked: !!r[C.email] }));
+    school: String(r[9]), place: String(r[10]), district: String(r[11]), status: String(r[C.status]), languages: String(r[C.languages] || ''), linked: !!r[C.email] }));
   const sheet = { url: ss_().getUrl(), gids: { students: students_().getSheetId(), classes: tab_('Classes', CLASS_HEADERS, '#D3136B').getSheetId(),
     materials: tab_('Materials', MAT_HEADERS, '#1C6B3A').getSheetId(), notices: tab_('Notices', NOTICE_HEADERS, '#B5441B').getSheetId() } };
   return { ok: true, classes: classes, materials: materials, notices: notices, students: students, sheet: sheet };
