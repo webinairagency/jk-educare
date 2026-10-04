@@ -9,7 +9,6 @@ const display = Baloo_Thambi_2({ subsets: ["tamil", "latin"], weight: ["600", "8
 const body = Hind_Madurai({ subsets: ["tamil", "latin"], weight: ["400", "500", "600"], variable: "--body" });
 
 /* ================= CONFIG ================= */
-const LIMIT = 50;
 const CONTACT = "919842463437";
 // WhatsApp community: one invite link per group the student picks (boys and girls are together).
 // Paste each group's invite link here. A link that still says REPLACE is hidden, and the
@@ -27,12 +26,11 @@ const waLink = (group: string) => [WA_GROUPS[group], WA_COMMUNITY].find(l => l &
 const DISTRICTS = ["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kallakurichi","Kancheepuram","Kanniyakumari","Karur","Krishnagiri","Madurai","Mayiladuthurai","Nagapattinam","Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram","Ranipet","Salem","Sivagangai","Tenkasi","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupathur","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar","Puducherry","Outside Tamil Nadu"];
 const GROUPS = ["XII – Bio-Maths", "XII – CS-Maths", "XII – Pure Science (Bio)", "XII – Other"];
 
-type Pools = { STATE: number; CBSE: number };
 type Form = {
   name: string; gender: string; board: string; group: string; school: string;
   place: string; district: string; phone: string; parent: string; consent: boolean; website: string;
 };
-type Result = { regNo: string; position: number; shortlisted: boolean; duplicate?: boolean; accessCode?: string; linked?: boolean; pools?: Pools };
+type Result = { regNo: string; position: number; shortlisted: boolean; duplicate?: boolean; accessCode?: string; linked?: boolean };
 
 const EMPTY: Form = { name: "", gender: "", board: "", group: "", school: "", place: "", district: "", phone: "", parent: "", consent: false, website: "" };
 const mobile = (v: string) => /^[6-9]\d{9}$/.test(v);
@@ -52,7 +50,6 @@ const RULES: Record<string, [(f: Form) => boolean, string]> = {
 export default function RegisterForm() {
   const [f, setF] = useState<Form>(EMPTY);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [pools, setPools] = useState<Pools>({ STATE: 0, CBSE: 0 });
   const [busy, setBusy] = useState(false);
   const [formErr, setFormErr] = useState("");
   const [done, setDone] = useState<{ form: Form; res: Result } | null>(null);
@@ -80,11 +77,6 @@ export default function RegisterForm() {
     }
   }
 
-  useEffect(() => {
-    fetch("/api/register", { cache: "no-store" })
-      .then(r => r.json()).then(j => j.ok && j.pools && setPools(j.pools)).catch(() => {});
-  }, []);
-
   const set = <K extends keyof Form>(k: K, v: Form[K]) => {
     setF(p => ({ ...p, [k]: v }));
     if (errors[k as string]) setErrors(e => { const n = { ...e }; delete n[k as string]; return n; });
@@ -108,7 +100,6 @@ export default function RegisterForm() {
       const r = await fetch("/api/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || "Registration failed");
-      if (j.pools) setPools(j.pools);
       setDone({ form: payload, res: j });
       setTimeout(() => topRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
     } catch (err) {
@@ -133,24 +124,7 @@ export default function RegisterForm() {
       </header>
 
       <main className={s.main}>
-        <section className={s.seats} aria-live="polite" ref={topRef}>
-          <h2>Batch I seats</h2>
-          <p>50 students per board. First come, first shortlisted.</p>
-          {(["STATE", "CBSE"] as const).map(p => {
-            const taken = Math.min(pools[p] || 0, LIMIT);
-            return (
-              <div className={s.pool} key={p}>
-                <div className={s.poolTop}>
-                  <strong>{p === "STATE" ? "State Board & Matric" : "CBSE"}</strong>
-                  <span><b>{LIMIT - taken}</b> left</span>
-                </div>
-                <div className={s.dots}>
-                  {Array.from({ length: LIMIT }, (_, i) => <i key={i} className={i < taken ? s.on : ""} />)}
-                </div>
-              </div>
-            );
-          })}
-        </section>
+        <div ref={topRef} />
 
         {done ? (
           <section className={s.done} aria-live="polite">
@@ -164,8 +138,8 @@ export default function RegisterForm() {
             <p>{done.res.duplicate ? "This number was registered earlier. Your registration number:" : "Save or screenshot your registration number."}</p>
             <div className={s.regno}>{done.res.regNo}</div>
             {done.res.shortlisted
-              ? <span className={`${s.status} ${s.ok}`}>Shortlisted: seat {done.res.position} of {LIMIT}</span>
-              : <span className={`${s.status} ${s.wait}`}>Waitlist: position {done.res.position - LIMIT}. We&apos;ll contact you for the next batch.</span>}
+              ? <span className={`${s.status} ${s.ok}`}>Registered: you are in Batch I</span>
+              : <span className={`${s.status} ${s.wait}`}>Registered. We&apos;ll contact you soon.</span>}
             {done.res.shortlisted && done.res.accessCode ? (
               <div className={s.codeBox}>
                 <div className={s.codeLabel}>Your class portal access code</div>
