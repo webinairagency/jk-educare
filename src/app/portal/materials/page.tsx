@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "../../../auth";
+import { portalStudent } from "../../../lib/portal-student";
 import MaterialsList from "../../../components/portal/MaterialsList";
 import { getMaterials, type Material } from "../../../lib/content";
 import { isExam, tagsForGroup, visibleTo } from "../../../lib/classes";
@@ -11,8 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function MaterialsPage({ searchParams }: { searchParams: Promise<{ type?: string; track?: string }> }) {
   const { type, track } = await searchParams;
   const exam = track === "exam";
-  const session = await auth();
-  const st = session?.student;
+  const { st, preview } = await portalStudent();
   if (!st) redirect("/link");
   const { t } = await getT();
 

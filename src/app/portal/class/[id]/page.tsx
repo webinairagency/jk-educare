@@ -2,7 +2,7 @@ import Link from "next/link";
 import { after } from "next/server";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "../../../../auth";
+import { portalStudent } from "../../../../lib/portal-student";
 import Thumb from "../../../../components/portal/Thumb";
 import Countdown from "../../../../components/portal/Countdown";
 import VideoGate from "../../../../components/portal/VideoGate";
@@ -19,18 +19,17 @@ export const dynamic = "force-dynamic";
 
 export default async function ClassPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await auth();
-  const st = session?.student;
+  const { st, preview } = await portalStudent();
   if (!st) redirect("/link");
   const { lang, t } = await getT();
 
   const row = (await getClasses()).find(c => c.id === decodeURIComponent(id));
   if (!row || !visibleTo(row, tagsForGroup(st.group))) notFound();
-  const attended = await getAttendance(st.regNo);
+  const attended = preview ? new Set<string>() : await getAttendance(st.regNo);
   const c = view(row, attended);
 
   // Opening a class while it is live counts as attending it.
-  if (c.state === "live" && !c.attended) {
+  if (c.state === "live" && !c.attended && !preview) {
     after(() => callScript("join", { regNo: st.regNo, classId: c.id }).catch(() => {}));
   }
 

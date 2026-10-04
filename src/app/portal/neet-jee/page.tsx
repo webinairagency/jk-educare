@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "../../../auth";
+import { portalStudent } from "../../../lib/portal-student";
 import Dashboard from "../../../components/portal/Dashboard";
 import { getAttendance, getClasses, isExam, tagsForGroup, visibleTo, type ClassRow } from "../../../lib/classes";
 import { getMaterials, type Material } from "../../../lib/content";
@@ -10,8 +10,7 @@ export const dynamic = "force-dynamic";
 
 // NEET / JEE preparation: its own space, kept apart from the +2 school-subject classes.
 export default async function ExamPage() {
-  const session = await auth();
-  const st = session?.student;
+  const { st, preview } = await portalStudent();
   if (!st) redirect("/link");
   const { lang, t } = await getT();
 
@@ -19,7 +18,7 @@ export default async function ExamPage() {
   let failed = false;
   const [rows, attended, allMaterials] = await Promise.all([
     getClasses().catch(() => { failed = true; return [] as ClassRow[]; }),
-    getAttendance(st.regNo),
+    preview ? Promise.resolve(new Set<string>()) : getAttendance(st.regNo),
     getMaterials().catch(() => [] as Material[]),
   ]);
   const mine = rows.filter(c => isExam(c.subject) && visibleTo(c, tags));

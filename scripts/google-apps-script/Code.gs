@@ -160,6 +160,8 @@ function portal_(d) {
       case 'adminData':     return json_(adminData_());
       case 'adminAdd':      return json_(adminAdd_(d));
       case 'adminSetHidden': return json_(adminSetHidden_(d));
+      case 'adminUpdate':   return json_(adminUpdate_(d));
+      case 'adminResetStudent': return json_(adminResetStudent_(d));
       default:           return json_({ ok: false, error: 'Unknown action' });
     }
   } catch (err) {
@@ -301,16 +303,18 @@ function adminData_() {
   const rowsOf = k => { const sh = tab_(t[k].name, t[k].headers, t[k].colour); return sh.getDataRange().getValues().slice(1).map((r, i) => ({ r: r, row: i + 2 })); };
   const iso = v => v instanceof Date ? v.toISOString() : '';
   const classes = rowsOf('classes').filter(x => x.r[0]).map(x => ({ row: x.row, id: String(x.r[0]), subject: String(x.r[1]), topic: String(x.r[2]), teacher: String(x.r[3]),
-    for: String(x.r[4]), start: iso(x.r[5]), duration: Number(x.r[6]) || 60, live: String(x.r[7]), recording: String(x.r[8]), hidden: isTrue_(x.r[11]) }));
+    for: String(x.r[4]), start: iso(x.r[5]), duration: Number(x.r[6]) || 60, live: String(x.r[7]), recording: String(x.r[8]), notes: String(x.r[9]), caption: String(x.r[10]), hidden: isTrue_(x.r[11]) }));
   const materials = rowsOf('materials').filter(x => x.r[0]).map(x => ({ row: x.row, title: String(x.r[0]), subject: String(x.r[1]), type: String(x.r[2]), for: String(x.r[3]),
     link: String(x.r[4]), added: iso(x.r[5]), hidden: isTrue_(x.r[6]) }));
   const notices = rowsOf('notices').filter(x => x.r[0] || x.r[1]).map(x => ({ row: x.row, en: String(x.r[0]), ta: String(x.r[1]), date: iso(x.r[2]), pinned: isTrue_(x.r[3]),
-    until: iso(x.r[4]), hidden: isTrue_(x.r[6]) }));
+    until: iso(x.r[4]), for: String(x.r[5] || 'All'), hidden: isTrue_(x.r[6]) }));
   const rows = students_().getDataRange().getValues().slice(1);
   // no phone numbers, access codes or emails go to the admin page
   const students = rows.filter(r => r[C.regNo]).map(r => ({ regNo: String(r[C.regNo]), name: String(r[C.name]), group: String(r[C.group]), board: String(r[C.board]),
     school: String(r[9]), place: String(r[10]), district: String(r[11]), status: String(r[C.status]), linked: !!r[C.email] }));
-  return { ok: true, classes: classes, materials: materials, notices: notices, students: students };
+  const sheet = { url: ss_().getUrl(), gids: { students: students_().getSheetId(), classes: tab_('Classes', CLASS_HEADERS, '#D3136B').getSheetId(),
+    materials: tab_('Materials', MAT_HEADERS, '#1C6B3A').getSheetId(), notices: tab_('Notices', NOTICE_HEADERS, '#B5441B').getSheetId() } };
+  return { ok: true, classes: classes, materials: materials, notices: notices, students: students, sheet: sheet };
 }
 
 function adminAdd_(d) {
@@ -361,5 +365,68 @@ function adminSetHidden_(d) {
     if (row > sh.getLastRow()) return { ok: false, error: 'Row not found' };
     sh.getRange(row, t.hidden).setValue(d.hidden ? true : '');
     return { ok: true };
+  } finally { lock.releaseLock(); }
+}
+
+/** Edit an existing class / material / notice row from the admin page. */
+function adminUpdate_(d) {
+  const kinds = { class: ADMIN_TABS.classes, material: ADMIN_TABS.materials, notice: ADMIN_TABS.notices };
+  const tab = kinds[d.kind];
+  const row = Number(d.row);
+  const a = d.item || {};
+  if (!tab || !(row >= 2)) return { ok: false, error: 'Bad request' };
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    const sh = tab_(tab.name, tab.headers, tab.colour);
+    if (row > sh.getLastRow()) return { ok: false, error: 'Row not found' };
+    if (d.kind === 'class') {
+      const subject = clean_(a.subject, 40), topic = clean_(a.topic, 120);
+      const start = Utilities.parseDate(String(a.start || ''), 'Asia/Kolkata', "yyyy-MM-dd'T'HH:mm");
+      const live = url_(a.live);
+      if (!subject || !topic) return { ok: false, error: 'Subject and topic are required' };
+      if (!live) return { ok: false, error: 'Live link must start with https://' };
+      sh.getRange(row, 2, 1, 10).setValues([[subject, topic, clean_(a.teacher || 'JK Sir', 60), clean_(a.for || 'All', 40), start,
+        Math.max(10, Math.min(300, Number(a.duration) || 60)), live, url_(a.recording), url_(a.notes), clean_(a.caption, 200)]]);
+      return { ok: true };
+    }
+    if (d.kind === 'material') {
+      const link = url_(a.link);
+      if (!clean_(a.title, 120) || !link) return { ok: false, error: 'Title and a https:// link are required' };
+      if (['notes', 'question bank', 'answer key', 'model exam'].indexOf(String(a.type)) < 0) return { ok: false, error: 'Unknown type' };
+      sh.getRange(row, 1, 1, 5).setValues([[clean_(a.title, 120), clean_(a.subject || 'General', 40), a.type, clean_(a.for || 'All', 40), link]]);
+      return { ok: true };
+    }
+    const en = clean_(a.en, 300), ta = clean_(a.ta, 300);
+    if (!en && !ta) return { ok: false, error: 'Write the notice in English or Tamil' };
+    const until = date_(a.until);
+    sh.getRange(row, 1, 1, 2).setValues([[en, ta]]);
+    sh.getRange(row, 4).setValue(a.pinned ? true : '');
+    sh.getRange(row, 5).setValue(until ? Utilities.parseDate(until + 'T23:59', 'Asia/Kolkata', "yyyy-MM-dd'T'HH:mm") : '');
+    sh.getRange(row, 6).setValue(clean_(a.for || 'All', 40));
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: 'Could not save: check the date and time' };
+  } finally { lock.releaseLock(); }
+}
+
+/** Frees a roll number for a new Google account: clears the link and makes a fresh code. Returns the code once. */
+function adminResetStudent_(d) {
+  const regNo = String(d.regNo || '').toUpperCase().replace(/\s+/g, '');
+  if (!regNo) return { ok: false, error: 'Bad request' };
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    const sh = students_();
+    const rows = sh.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (String(rows[i][C.regNo]).toUpperCase() !== regNo) continue;
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      sh.getRange(i + 1, C.email + 1).setValue('');
+      sh.getRange(i + 1, C.linkedAt + 1).setValue('');
+      sh.getRange(i + 1, C.code + 1).setNumberFormat('@').setValue(code);
+      return { ok: true, code: code, name: String(rows[i][C.name]) };
+    }
+    return { ok: false, error: 'Roll number not found' };
   } finally { lock.releaseLock(); }
 }
