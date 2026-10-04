@@ -176,7 +176,7 @@ export default function RegisterForm() {
 
             <div className={field("name")} id="f-name">
               <label htmlFor="name">Student name <span className={s.ta}>பெயர் – initial உடன்</span></label>
-              <input id="name" className={s.upper} type="text" autoComplete="name" maxLength={60}
+              <input id="name" className={s.upper} type="text" autoComplete="name" maxLength={60} placeholder="Write your name in CAPITAL LETTERS"
                 value={f.name} onChange={e => set("name", e.target.value)} />
               <Err k="name" />
             </div>
