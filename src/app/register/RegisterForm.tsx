@@ -120,7 +120,7 @@ export default function RegisterForm() {
         <div className={s.wrap}>
           <div className={s.brand}><Image src="/jk-logo-96.png" alt="JK Edu-Care Services" width={48} height={48} priority /> Edu-Care Services</div>
           <h1>+2 மாணவரா நீங்கள்?</h1>
-          <p className={s.sub}>Free online classes for all subjects, NEET &amp; JEE. Weekends and holidays only, so school isn&apos;t disturbed.</p>
+          <p className={s.sub}>Free online classes for ALL SUBJECTS, NEET &amp; JEE.<br />Only on the Weekends and Holidays</p>
           <ul className={s.free}><li>Free material</li><li>Question bank</li><li>Answer keys</li><li>Model exams</li></ul>
         </div>
       </header>
