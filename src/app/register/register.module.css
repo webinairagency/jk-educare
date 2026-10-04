@@ -100,3 +100,6 @@
 .foot a { color: var(--blue); font-weight: 600; }
 
 @media (prefers-reduced-motion: reduce) { .dots i { transition: none; } }
+
+.step2 { display: flex; flex-direction: column; gap: 4px; background: #FFF4CC; border: 1.5px solid #F2D86B; border-radius: 12px; padding: 12px 14px; margin-top: 12px; text-align: left; font-size: 14.5px; color: #4A3A00; }
+.step2 b { font-size: 15.5px; }

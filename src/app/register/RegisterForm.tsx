@@ -153,7 +153,16 @@ export default function RegisterForm() {
               <p className={s.linkedNote}>Your account is already linked. Log in with Google.</p>
             ) : null}
             {done.res.shortlisted && ((done.res.accessCode ?? "") !== "" || (done.res.duplicate && done.res.linked)) && (
-              <a className={`${s.btn} ${s.portalBtn}`} href="/login">Go to class portal</a>
+              <>
+                {!done.res.linked && (
+                  <div className={s.step2} role="note">
+                    <b>Step 2 – needed to join classes</b>
+                    <span>Tap the blue button, sign in with Google, then enter your roll number and code. Until you do this you cannot join the live class.</span>
+                    <span className={s.ta}>நீல பொத்தானைத் தட்டி Google மூலம் உள்நுழைந்து, பதிவு எண்ணையும் குறியீட்டையும் உள்ளிடவும். இதைச் செய்தால்தான் வகுப்பில் சேர முடியும்.</span>
+                  </div>
+                )}
+                <a className={`${s.btn} ${s.portalBtn}`} href="/login">{done.res.linked ? "Go to class portal" : "Step 2: Sign in with Google to join classes"}</a>
+              </>
             )}
             {waLink(done.form.group) && (
               <a className={`${s.btn} ${s.wa}`} href={waLink(done.form.group)} target="_blank" rel="noopener noreferrer">
