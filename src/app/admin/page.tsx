@@ -162,6 +162,7 @@ export default async function AdminPage() {
 
         <section aria-labelledby="add">
           <SectionHead id="add" title="Add new" />
+          <p className={a.note} style={{ margin: "0 0 10px" }}>Pick the subject and students see it automatically: each group only gets the subjects it studies (NEET and JEE go to everyone). Use &quot;Show to&quot; only to limit something to one group.</p>
           <AdminForms />
         </section>
 

@@ -25,7 +25,7 @@ export default function LinkForm() {
     try {
       const text = await navigator.clipboard.readText();
       const digits = text.match(/\b\d{6}\b/)?.[0];
-      const roll = text.match(/JK-B\d+-\d{4}/i)?.[0];
+      const roll = text.match(/JK-(?:B\d+-)?\d{4,}/i)?.[0];
       if (digits) setCode(digits);
       if (roll) setRegNo(roll.toUpperCase());
     } catch { /* permission denied: student types it */ }
@@ -41,7 +41,7 @@ export default function LinkForm() {
       )}
       <div className={s.field}>
         <label htmlFor="regNo">Roll number</label>
-        <input id="regNo" name="regNo" placeholder="JK-B1-0007" autoCapitalize="characters" autoComplete="off" required
+        <input id="regNo" name="regNo" placeholder="JK-0007" autoCapitalize="characters" autoComplete="off" required
           value={regNo} onChange={e => setRegNo(e.target.value.toUpperCase())} />
         <div className={s.hint}>The registration number you got for Batch I.</div>
       </div>
