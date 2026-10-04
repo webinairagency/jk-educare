@@ -18,13 +18,15 @@ const WA_GROUPS: Record<string, string> = {
   "XII – Bio-Maths": "https://chat.whatsapp.com/REPLACE_BIO_MATHS",
   "XII – CS-Maths": "https://chat.whatsapp.com/REPLACE_CS_MATHS",
   "XII – Pure Science (Bio)": "https://chat.whatsapp.com/REPLACE_PURE_SCIENCE",
+  "XII – Commerce & Accountancy": "https://chat.whatsapp.com/REPLACE_COMMERCE",
+  "XII – Computer Application": "https://chat.whatsapp.com/REPLACE_COMPUTER_APPLICATION",
   "XII – Other": "https://chat.whatsapp.com/REPLACE_OTHER",
 };
 const waLink = (group: string) => [WA_GROUPS[group], WA_COMMUNITY].find(l => l && !l.includes("REPLACE")) ?? "";
 /* ========================================== */
 
 const DISTRICTS = ["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kallakurichi","Kancheepuram","Kanniyakumari","Karur","Krishnagiri","Madurai","Mayiladuthurai","Nagapattinam","Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram","Ranipet","Salem","Sivagangai","Tenkasi","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupathur","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar","Puducherry","Outside Tamil Nadu"];
-const GROUPS = ["XII – Bio-Maths", "XII – CS-Maths", "XII – Pure Science (Bio)", "XII – Other"];
+const GROUPS = ["XII – Bio-Maths", "XII – CS-Maths", "XII – Pure Science (Bio)", "XII – Commerce & Accountancy", "XII – Computer Application", "XII – Other"];
 
 type Form = {
   name: string; gender: string; board: string; group: string; school: string;
