@@ -92,7 +92,6 @@ export default async function AdminPage() {
   const upcoming = visible.filter(c => now < c.ms - JOIN_EARLY_MIN * 60_000);
   const shortlisted = data.students.filter(x => x.status === "Shortlisted");
   const linked = shortlisted.filter(x => x.linked).length;
-  const subjects = Array.from(new Set([...data.classes.map(c => c.subject), ...data.materials.map(m => m.subject)].filter(Boolean))).sort();
 
   return (
     <Shell email={email}>
@@ -108,7 +107,7 @@ export default async function AdminPage() {
 
         <section>
           <h2 className={a.h2}>Add new</h2>
-          <AdminForms subjects={subjects} />
+          <AdminForms />
         </section>
 
         <section>

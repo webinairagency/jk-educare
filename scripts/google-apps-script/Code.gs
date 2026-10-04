@@ -324,7 +324,7 @@ function adminAdd_(d) {
       if (!subject || !topic) return { ok: false, error: 'Subject and topic are required' };
       const live = url_(a.live);
       if (!live) return { ok: false, error: 'YouTube link must start with https://' };
-      const id = 'C' + Utilities.formatDate(start, 'Asia/Kolkata', 'yyMMdd-HHmm') + '-' + subject.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
+      const id = 'C' + Utilities.formatDate(start, 'Asia/Kolkata', 'yyMMdd-HHmm') + '-' + subject.replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase() + Math.floor(Math.random() * 36 * 36).toString(36).toUpperCase();   // random tail keeps ids unique
       tab_('Classes', CLASS_HEADERS, '#D3136B').appendRow([id, subject, topic, clean_(a.teacher || 'JK Sir', 60), clean_(a.for || 'All', 40), start,
         Math.max(10, Math.min(300, Number(a.duration) || 60)), live, url_(a.recording), url_(a.notes), clean_(a.caption, 200), '']);
       return { ok: true };
