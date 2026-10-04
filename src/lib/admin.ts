@@ -18,8 +18,17 @@ export async function requireAdmin() {
   if (!ok) redirect("/admin");
 }
 
-export type AdminClass = { row: number; id: string; subject: string; topic: string; teacher: string; for: string; start: string; duration: number; live: string; recording: string; hidden: boolean };
+export type AdminClass = { row: number; id: string; subject: string; topic: string; teacher: string; for: string; start: string; duration: number; live: string; recording: string; notes: string; caption: string; hidden: boolean };
 export type AdminMaterial = { row: number; title: string; subject: string; type: string; for: string; link: string; added: string; hidden: boolean };
-export type AdminNotice = { row: number; en: string; ta: string; date: string; pinned: boolean; until: string; hidden: boolean };
+export type AdminNotice = { row: number; en: string; ta: string; date: string; pinned: boolean; until: string; for?: string; hidden: boolean };
 export type AdminStudent = { regNo: string; name: string; group: string; board: string; school: string; place: string; district: string; status: string; linked: boolean };
-export type AdminData = { classes: AdminClass[]; materials: AdminMaterial[]; notices: AdminNotice[]; students: AdminStudent[] };
+export type AdminSheet = { url: string; gids: { students: number; classes: number; materials: number; notices: number } };
+export type AdminData = { classes: AdminClass[]; materials: AdminMaterial[]; notices: AdminNotice[]; students: AdminStudent[]; sheet?: AdminSheet };
+
+/** Link to the Google Sheet (or one of its tabs). ADMIN_SHEET_URL overrides what the script reports. */
+export function sheetLink(sheet: AdminSheet | undefined, tab?: keyof AdminSheet["gids"]) {
+  const base = (process.env.ADMIN_SHEET_URL || sheet?.url || "").split("#")[0];
+  if (!base) return "";
+  const gid = tab && sheet?.gids?.[tab];
+  return gid !== undefined && gid !== null ? `${base}#gid=${gid}` : base;
+}

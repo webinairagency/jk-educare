@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { signIn, signOut } from "../../auth";
-import { adminSession, type AdminData } from "../../lib/admin";
+import { adminSession, sheetLink, type AdminData } from "../../lib/admin";
 import { callScript } from "../../lib/script";
 import { fmtDay, fmtTime, JOIN_EARLY_MIN } from "../../lib/classes-shared";
+import { GROUPS } from "../../lib/groups";
+import { PREVIEW_ALL } from "../../lib/portal-student";
 import AdminForms from "../../components/admin/AdminForms";
-import { setHidden } from "./actions";
+import { EditClass, EditMaterial, EditNotice } from "../../components/admin/EditItems";
+import StudentsTable from "../../components/admin/StudentsTable";
+import { openPreview, setHidden } from "./actions";
 import { display, body } from "../../components/portal/fonts";
 import s from "../../components/portal/portal.module.css";
 import a from "../../components/admin/admin.module.css";
@@ -14,8 +18,19 @@ import a from "../../components/admin/admin.module.css";
 export const metadata: Metadata = { title: "Admin | JK Edu-Care Services", robots: { index: false } };
 export const dynamic = "force-dynamic";
 
+const TZ = "Asia/Kolkata";
 const dayKey = (ms: number) =>
-  new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata", year: "numeric", month: "2-digit", day: "2-digit" }).format(ms);
+  new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit" }).format(ms);
+
+/** ISO time -> "YYYY-MM-DDTHH:mm" in IST, the format a datetime-local box wants. */
+function localInput(iso: string) {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return "";
+  const p = new Intl.DateTimeFormat("en-CA", { timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).formatToParts(d);
+  const g = (t: string) => p.find(x => x.type === t)?.value ?? "";
+  return `${g("year")}-${g("month")}-${g("day")}T${g("hour")}:${g("minute")}`;
+}
+const dateOnly = (iso: string) => (iso && !isNaN(new Date(iso).getTime()) ? dayKey(new Date(iso).getTime()) : "");
 
 function Shell({ children, email }: { children: React.ReactNode; email?: string }) {
   return (
@@ -42,6 +57,15 @@ function Toggle({ tab, row, hidden }: { tab: string; row: number; hidden: boolea
       <input type="hidden" name="tab" value={tab} /><input type="hidden" name="row" value={row} /><input type="hidden" name="hidden" value={hidden ? "0" : "1"} />
       <button className={a.mini} type="submit">{hidden ? "Show" : "Hide"}</button>
     </form>
+  );
+}
+
+function SectionHead({ id, title, sheet }: { id: string; title: string; sheet?: string }) {
+  return (
+    <div className={a.secHead}>
+      <h2 className={a.h2} id={id}>{title}</h2>
+      {sheet && <a className={a.sheetLink} href={sheet} target="_blank" rel="noopener noreferrer">Open in Google Sheet ↗</a>}
+    </div>
   );
 }
 
@@ -92,38 +116,72 @@ export default async function AdminPage() {
   const upcoming = visible.filter(c => now < c.ms - JOIN_EARLY_MIN * 60_000);
   const shortlisted = data.students.filter(x => x.status === "Shortlisted");
   const linked = shortlisted.filter(x => x.linked).length;
+  const byGroup = Object.entries(data.students.reduce<Record<string, number>>((m, x) => { const k = x.group || "—"; m[k] = (m[k] ?? 0) + 1; return m; }, {})).sort((x, y) => y[1] - x[1]);
+  const sheetHome = sheetLink(data.sheet);
+  const tab = (k: "students" | "classes" | "materials" | "notices") => sheetLink(data.sheet, k);
 
   return (
     <Shell email={email}>
       <div className={a.wrap}>
         <h1 className={s.hello} style={{ margin: 0 }}>Manage JK Edu-Care</h1>
 
-        <div className={a.stats}>
-          <div className={a.stat}><b>{shortlisted.length}</b><span>Students in batch ({linked} signed in)</span></div>
-          <div className={`${a.stat} ${live.length ? a.live : ""}`}><b>{live.length ? "LIVE" : "—"}</b><span>{live.length ? `${live[0].subject}: ${live[0].topic}` : "No class live now"}</span></div>
-          <div className={a.stat}><b>{today.length}</b><span>Classes today</span></div>
-          <div className={a.stat}><b>{upcoming.length}</b><span>Upcoming classes</span></div>
-        </div>
+        <section className={a.tools} aria-label="Quick tools">
+          <form action={openPreview} className={a.preview}>
+            <label>Preview the student portal as
+              <select name="group" defaultValue={PREVIEW_ALL}>
+                {[PREVIEW_ALL, ...GROUPS].map(g => <option key={g} value={g}>{g}</option>)}
+              </select>
+            </label>
+            <button type="submit">Open student view →</button>
+          </form>
+          {sheetHome
+            ? <a className={a.sheetBtn} href={sheetHome} target="_blank" rel="noopener noreferrer">Open Google Sheet ↗</a>
+            : <span className={a.hint}>The Google Sheet link shows here once the new Apps Script is deployed.</span>}
+        </section>
+        <p className={a.note}>Student view needs no roll number or linking. Nothing you do there is recorded (no attendance). Use the yellow &quot;Admin portal&quot; button at the bottom to come back.</p>
 
-        <section>
-          <h2 className={a.h2}>Add new</h2>
+        <nav className={a.jump} aria-label="Sections">
+          <a href="#overview">Overview</a><a href="#add">Add new</a><a href="#classes">Classes</a>
+          <a href="#materials">Materials</a><a href="#notices">Notices</a><a href="#students">Students</a>
+        </nav>
+
+        <section aria-labelledby="overview">
+          <SectionHead id="overview" title="Overview" />
+          <div className={a.stats}>
+            <div className={a.stat}><b>{shortlisted.length}</b><span>Students in batch ({linked} signed in)</span></div>
+            <div className={`${a.stat} ${live.length ? a.live : ""}`}><b>{live.length ? "LIVE" : "—"}</b><span>{live.length ? `${live[0].subject}: ${live[0].topic}` : "No class live now"}</span></div>
+            <div className={a.stat}><b>{today.length}</b><span>Classes today</span></div>
+            <div className={a.stat}><b>{upcoming.length}</b><span>Upcoming classes</span></div>
+          </div>
+          {byGroup.length > 0 && (
+            <ul className={a.chips} aria-label="Students by group">
+              {byGroup.map(([g, n]) => <li key={g}>{g} <b>{n}</b></li>)}
+            </ul>
+          )}
+        </section>
+
+        <section aria-labelledby="add">
+          <SectionHead id="add" title="Add new" />
           <AdminForms />
         </section>
 
-        <section>
-          <h2 className={a.h2}>Classes</h2>
+        <section aria-labelledby="classes">
+          <SectionHead id="classes" title="Classes" sheet={tab("classes")} />
           {classes.length === 0 ? <div className={s.empty}>No classes yet.</div> : (
             <ul className={a.list}>
               {classes.slice(0, 30).map(c => {
                 const isLive = live.some(l => l.id === c.id);
                 return (
-                  <li key={c.id} className={`${a.row} ${c.hidden ? a.rowOff : ""}`}>
-                    <div className={a.rowText}>
-                      <strong>{c.subject}: {c.topic}</strong>
-                      <span>{fmtDay(c.ms)}, {fmtTime(c.ms)} · {c.teacher} · For {c.for || "All"}{c.hidden ? " · hidden" : ""}</span>
+                  <li key={c.id} className={`${a.item} ${c.hidden ? a.rowOff : ""}`}>
+                    <div className={a.row}>
+                      <div className={a.rowText}>
+                        <strong>{c.subject}: {c.topic}</strong>
+                        <span>{fmtDay(c.ms)}, {fmtTime(c.ms)} · {c.teacher} · For {c.for || "All"}{c.hidden ? " · hidden" : ""}</span>
+                      </div>
+                      {isLive && <span className={`${a.tag} ${a.tagLive}`}>LIVE</span>}
+                      <Toggle tab="classes" row={c.row} hidden={c.hidden} />
                     </div>
-                    {isLive && <span className={`${a.tag} ${a.tagLive}`}>LIVE</span>}
-                    <Toggle tab="classes" row={c.row} hidden={c.hidden} />
+                    <EditClass c={c} startLocal={localInput(c.start)} />
                   </li>
                 );
               })}
@@ -131,55 +189,52 @@ export default async function AdminPage() {
           )}
         </section>
 
-        <section>
-          <h2 className={a.h2}>Study materials</h2>
+        <section aria-labelledby="materials">
+          <SectionHead id="materials" title="Study materials" sheet={tab("materials")} />
           {data.materials.length === 0 ? <div className={s.empty}>No materials yet.</div> : (
             <ul className={a.list}>
               {[...data.materials].reverse().slice(0, 30).map(m => (
-                <li key={m.row} className={`${a.row} ${m.hidden ? a.rowOff : ""}`}>
-                  <div className={a.rowText}>
-                    <strong>{m.title}</strong>
-                    <span>{m.subject} · For {m.for || "All"}{m.hidden ? " · hidden" : ""}</span>
+                <li key={m.row} className={`${a.item} ${m.hidden ? a.rowOff : ""}`}>
+                  <div className={a.row}>
+                    <div className={a.rowText}>
+                      <strong>{m.title}</strong>
+                      <span>{m.subject} · For {m.for || "All"}{m.hidden ? " · hidden" : ""}</span>
+                    </div>
+                    <span className={a.tag}>{m.type}</span>
+                    <Toggle tab="materials" row={m.row} hidden={m.hidden} />
                   </div>
-                  <span className={a.tag}>{m.type}</span>
-                  <Toggle tab="materials" row={m.row} hidden={m.hidden} />
+                  <EditMaterial m={m} />
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        <section>
-          <h2 className={a.h2}>Notices</h2>
+        <section aria-labelledby="notices">
+          <SectionHead id="notices" title="Notices" sheet={tab("notices")} />
           {data.notices.length === 0 ? <div className={s.empty}>No notices yet.</div> : (
             <ul className={a.list}>
               {[...data.notices].reverse().slice(0, 20).map(n => (
-                <li key={n.row} className={`${a.row} ${n.hidden ? a.rowOff : ""}`}>
-                  <div className={a.rowText}>
-                    <strong>{n.pinned ? "📌 " : ""}{n.en || n.ta}</strong>
-                    <span>{n.until ? `Until ${fmtDay(new Date(n.until).getTime())}` : "No end date"}{n.hidden ? " · hidden" : ""}</span>
+                <li key={n.row} className={`${a.item} ${n.hidden ? a.rowOff : ""}`}>
+                  <div className={a.row}>
+                    <div className={a.rowText}>
+                      <strong>{n.pinned ? "📌 " : ""}{n.en || n.ta}</strong>
+                      <span>{n.until ? `Until ${fmtDay(new Date(n.until).getTime())}` : "No end date"}{n.hidden ? " · hidden" : ""}</span>
+                    </div>
+                    <Toggle tab="notices" row={n.row} hidden={n.hidden} />
                   </div>
-                  <Toggle tab="notices" row={n.row} hidden={n.hidden} />
+                  <EditNotice n={n} untilDate={dateOnly(n.until)} />
                 </li>
               ))}
             </ul>
           )}
         </section>
 
-        <section>
-          <h2 className={a.h2}>Students ({data.students.length})</h2>
-          <div className={a.tableWrap}>
-            <table className={a.table}>
-              <thead><tr><th>Roll no</th><th>Name</th><th>Group</th><th>Board</th><th>School</th><th>Place</th><th>District</th><th>Status</th><th>Signed in</th></tr></thead>
-              <tbody>
-                {data.students.map(x => (
-                  <tr key={x.regNo}><td>{x.regNo}</td><td>{x.name}</td><td>{x.group}</td><td>{x.board}</td><td>{x.school}</td><td>{x.place}</td><td>{x.district}</td><td>{x.status}</td><td>{x.linked ? "Yes" : "—"}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <section aria-labelledby="students">
+          <SectionHead id="students" title={`Students (${data.students.length})`} sheet={tab("students")} />
+          <StudentsTable students={data.students} />
         </section>
-        <p className={a.hint}>To change the details of an existing row, edit it in the Google Sheet. Hiding a row removes it from the student portal without deleting it.</p>
+        <p className={a.hint}>Everything here is saved to the Google Sheet, and you can still edit the sheet directly. Hiding a row removes it from the student portal without deleting it.</p>
       </div>
     </Shell>
   );

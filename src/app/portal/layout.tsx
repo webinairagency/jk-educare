@@ -4,7 +4,9 @@ import type { Metadata, Viewport } from "next";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "../../auth";
 import { getT } from "../../lib/i18n";
-import { setLang } from "./actions";
+import { setLang, setPreviewGroup } from "./actions";
+import { portalStudent, PREVIEW_ALL } from "../../lib/portal-student";
+import { GROUPS } from "../../lib/groups";
 import NavLinks from "../../components/portal/NavLinks";
 import { display, body } from "../../components/portal/fonts";
 import s from "../../components/portal/portal.module.css";
@@ -28,8 +30,8 @@ export const viewport: Viewport = { themeColor: "#183A8F", viewportFit: "cover" 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  if (!session.student) redirect("/link");
-  const st = session.student;
+  const { st, preview, admin, previewGroup } = await portalStudent();
+  if (!st) redirect("/link");
   const { lang, t } = await getT();
 
   return (
@@ -59,7 +61,22 @@ export default async function PortalLayout({ children }: { children: React.React
           </form>
         </div>
       </nav>
-      <main className={s.main}>{children}</main>
+      <main className={`${s.main} ${admin ? s.mainAdmin : ""}`}>{children}</main>
+      {admin && (
+        <div className={s.adminBar} role="region" aria-label="Admin">
+          <Link href="/admin" className={s.adminBack}>← Admin portal</Link>
+          {preview ? (
+            <form action={setPreviewGroup} className={s.adminView}>
+              <label>Viewing as
+                <select name="group" defaultValue={previewGroup}>
+                  {[PREVIEW_ALL, ...GROUPS].map(g => <option key={g} value={g}>{g}</option>)}
+                </select>
+              </label>
+              <button type="submit">Switch</button>
+            </form>
+          ) : <span className={s.adminNote}>You are signed in as admin</span>}
+        </div>
+      )}
     </div>
   );
 }

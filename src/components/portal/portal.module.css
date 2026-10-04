@@ -123,3 +123,14 @@
 .facts div:last-child { border-bottom: 0; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; font-weight: 600; text-align: right; }
+
+/* Admin bar (admins previewing or using the student portal) */
+.mainAdmin { padding-bottom: 120px; }
+.adminBar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; background: var(--blueDeep); color: #fff; padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -8px 24px -14px rgba(0,0,0,.6); }
+.adminBack { background: var(--sun); color: var(--blueDeep) !important; font: 700 14.5px/1 var(--body), sans-serif; text-decoration: none; border-radius: 999px; padding: 11px 16px 10px; white-space: nowrap; }
+.adminBack:focus-visible, .adminView select:focus-visible, .adminView button:focus-visible { outline: 3px solid var(--sun); outline-offset: 2px; }
+.adminView { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.adminView label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #DDE5FA; min-width: 0; }
+.adminView select { font: 600 14px var(--body), sans-serif; max-width: 190px; border-radius: 8px; border: 0; padding: 8px; }
+.adminView button { background: #fff; color: var(--blueDeep); border: 0; border-radius: 8px; padding: 9px 12px; font: 700 13.5px var(--body), sans-serif; cursor: pointer; }
+.adminNote { font-size: 13px; color: #DDE5FA; }

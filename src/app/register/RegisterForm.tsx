@@ -1,5 +1,6 @@
 "use client";
 
+import { GROUPS } from "../../lib/groups";
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Baloo_Thambi_2, Hind_Madurai } from "next/font/google";
@@ -26,7 +27,6 @@ const waLink = (group: string) => [WA_GROUPS[group], WA_COMMUNITY].find(l => l &
 /* ========================================== */
 
 const DISTRICTS = ["Ariyalur","Chengalpattu","Chennai","Coimbatore","Cuddalore","Dharmapuri","Dindigul","Erode","Kallakurichi","Kancheepuram","Kanniyakumari","Karur","Krishnagiri","Madurai","Mayiladuthurai","Nagapattinam","Namakkal","Nilgiris","Perambalur","Pudukkottai","Ramanathapuram","Ranipet","Salem","Sivagangai","Tenkasi","Thanjavur","Theni","Thoothukudi","Tiruchirappalli","Tirunelveli","Tirupathur","Tiruppur","Tiruvallur","Tiruvannamalai","Tiruvarur","Vellore","Viluppuram","Virudhunagar","Puducherry","Outside Tamil Nadu"];
-const GROUPS = ["XII – Bio-Maths", "XII – CS-Maths", "XII – Pure Science (Bio)", "XII – Commerce & Accountancy", "XII – Computer Application", "XII – Other"];
 
 type Form = {
   name: string; gender: string; board: string; group: string; school: string;

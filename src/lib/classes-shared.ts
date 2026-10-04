@@ -15,6 +15,7 @@ const TZ = "Asia/Kolkata";
 export function tagsForGroup(group: string) {
   const g = group.toLowerCase();
   const tags = new Set<string>(["all"]);
+  if (g.includes("admin preview")) { ["maths", "bio", "cs", "commerce", "ca"].forEach(x => tags.add(x)); return tags; }
   if (g.includes("math")) tags.add("maths");
   if (g.includes("bio") || g.includes("pure science")) tags.add("bio");
   if (g.includes("cs") || g.includes("computer science")) tags.add("cs");

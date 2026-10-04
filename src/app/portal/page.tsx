@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { auth } from "../../auth";
+import { portalStudent } from "../../lib/portal-student";
 import Dashboard from "../../components/portal/Dashboard";
 import InstallButton from "../../components/portal/InstallButton";
 import { firstName, fmtDay, getAttendance, getClasses, isExam, tagsForGroup, visibleTo, type ClassRow } from "../../lib/classes";
@@ -10,8 +10,7 @@ import s from "../../components/portal/portal.module.css";
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
-  const session = await auth();
-  const st = session?.student;
+  const { st, preview } = await portalStudent();
   if (!st) redirect("/link");
   const { lang, t } = await getT();
 
@@ -20,7 +19,7 @@ export default async function DashboardPage() {
   const [rows, allNotices, attended, allMaterials] = await Promise.all([
     getClasses().catch(() => { failed = true; return [] as ClassRow[]; }),
     getNotices().catch(() => [] as Notice[]),
-    getAttendance(st.regNo),
+    preview ? Promise.resolve(new Set<string>()) : getAttendance(st.regNo),
     getMaterials().catch(() => [] as Material[]),
   ]);
   const materialCounts: Record<string, number> = {};
