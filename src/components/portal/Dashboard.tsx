@@ -31,8 +31,10 @@ function readWatched() {
   catch { return new Set<string>(); }
 }
 
-export default function Dashboard({ rows, attendedIds, serverNow, t, lang, materialCounts }: {
+export default function Dashboard({ rows, attendedIds, serverNow, t, lang, materialCounts, track, examCount }: {
   rows: ClassRow[]; attendedIds: string[]; serverNow: number; t: Strings; lang: Lang; materialCounts: Record<string, number>;
+  track?: "exam";          // set on the NEET / JEE page so the resource tiles open NEET / JEE material only
+  examCount?: number;      // set on the main dashboard to show the link card to the NEET / JEE section
 }) {
   const router = useRouter();
   const [now, setNow] = useState(serverNow);          // server time first, so the first render matches
@@ -134,7 +136,7 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang, mater
           {RES.map(r => {
             const n = materialCounts[r.type] ?? 0;
             return (
-              <Link key={r.type} href={`/portal/materials?type=${encodeURIComponent(r.type)}`} className={`${d.resTile} ${d[r.tone]}`}>
+              <Link key={r.type} href={`/portal/materials?type=${encodeURIComponent(r.type)}${track === "exam" ? "&track=exam" : ""}`} className={`${d.resTile} ${d[r.tone]}`}>
                 <span className={d.resIcon} aria-hidden="true">{r.icon}</span>
                 <span className={d.resText}><b>{r.label(t)}</b><span>{n ? `${n} ${t.files}` : t.soon}</span></span>
               </Link>
@@ -142,6 +144,14 @@ export default function Dashboard({ rows, attendedIds, serverNow, t, lang, mater
           })}
         </div>
       </section>
+
+      {examCount !== undefined && (
+        <Link href="/portal/neet-jee" className={d.examCard}>
+          <span className={d.examIcon} aria-hidden="true">🎯</span>
+          <span className={d.examText}><b>{t.neetJee}</b><span>{examCount ? `${examCount}` : t.soon}{examCount ? ` · ${t.neetJeeSub}` : ""}</span></span>
+          <span aria-hidden="true">→</span>
+        </Link>
+      )}
 
       <div className={d.week} role="group" aria-label="This week">
         {days.map((ms, i) => {

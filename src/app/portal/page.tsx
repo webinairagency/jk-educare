@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "../../auth";
 import Dashboard from "../../components/portal/Dashboard";
 import InstallButton from "../../components/portal/InstallButton";
-import { firstName, fmtDay, getAttendance, getClasses, tagsForGroup, visibleTo, type ClassRow } from "../../lib/classes";
+import { firstName, fmtDay, getAttendance, getClasses, isExam, tagsForGroup, visibleTo, type ClassRow } from "../../lib/classes";
 import { getMaterials, getNotices, type Material, type Notice } from "../../lib/content";
 import { getT } from "../../lib/i18n";
 import s from "../../components/portal/portal.module.css";
@@ -24,11 +24,13 @@ export default async function DashboardPage() {
     getMaterials().catch(() => [] as Material[]),
   ]);
   const materialCounts: Record<string, number> = {};
-  for (const m of allMaterials.filter(m => visibleTo(m, tags))) {
+  for (const m of allMaterials.filter(m => !isExam(m.subject) && visibleTo(m, tags))) {
     const k = m.type.trim().toLowerCase();
     materialCounts[k] = (materialCounts[k] ?? 0) + 1;
   }
-  const mine = rows.filter(c => visibleTo(c, tags));
+  const visible = rows.filter(c => visibleTo(c, tags));
+  const mine = visible.filter(c => !isExam(c.subject));
+  const examCount = visible.length - mine.length;
   const notices = allNotices.filter(n => visibleTo(n, tags))
     .sort((a, b) => Number(b.pinned) - Number(a.pinned) || b.date.localeCompare(a.date))
     .slice(0, 3);
@@ -52,7 +54,7 @@ export default async function DashboardPage() {
 
       {failed && <div className={s.err}>{t.loadErr}</div>}
 
-      <Dashboard rows={mine} attendedIds={[...attended]} serverNow={Date.now()} t={t} lang={lang} materialCounts={materialCounts} />
+      <Dashboard rows={mine} attendedIds={[...attended]} serverNow={Date.now()} t={t} lang={lang} materialCounts={materialCounts} examCount={examCount} />
     </>
   );
 }

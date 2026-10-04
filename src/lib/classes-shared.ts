@@ -111,3 +111,9 @@ export function liveKind(link: string): LiveKind {
   return "";
 }
 export const isExternalLive = (link: string) => ["zoom", "meet", "other"].includes(liveKind(link));
+
+/** NEET / JEE preparation classes and material live in their own section of the portal. */
+export const isExam = (subject: string) => {
+  const s = (subject || "").trim().toLowerCase();
+  return ["neet", "jee"].some(x => s === x || s.startsWith(x + " ") || s.startsWith(x + "-") || s.startsWith(x + ":"));
+};

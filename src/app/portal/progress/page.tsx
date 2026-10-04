@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "../../../auth";
-import { getAttendance, getClasses, tagsForGroup, view, visibleTo, type ClassRow } from "../../../lib/classes";
+import { getAttendance, getClasses, isExam, tagsForGroup, view, visibleTo, type ClassRow } from "../../../lib/classes";
 import { getT } from "../../../lib/i18n";
 import s from "../../../components/portal/portal.module.css";
 
@@ -15,7 +15,7 @@ export default async function ProgressPage() {
 
   const tags = tagsForGroup(st.group);
   const [rows, attended] = await Promise.all([getClasses().catch(() => [] as ClassRow[]), getAttendance(st.regNo)]);
-  const ended = rows.filter(c => visibleTo(c, tags)).map(c => view(c, attended)).filter(c => c.state === "recorded" || c.state === "processing" || c.state === "ended");
+  const ended = rows.filter(c => !isExam(c.subject) && visibleTo(c, tags)).map(c => view(c, attended)).filter(c => c.state === "recorded" || c.state === "processing" || c.state === "ended");
   const joined = ended.filter(c => c.attended).length;
   const missed = ended.filter(c => c.missed).length;   // Zoom / Meet classes can't be caught up, so they aren't "missed"
   const pct = ended.length ? Math.round((joined / ended.length) * 100) : 0;
