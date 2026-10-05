@@ -71,7 +71,7 @@
 .codeFix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: #FFF4CC; border: 1.5px solid #F2D86B; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 14px; color: #4A3A00; }
 
 /* Send-message preview dialog */
-.dlg { width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); border: 0; border-radius: 16px; padding: 0; box-shadow: 0 24px 60px -20px rgba(0,0,0,.6); color: var(--ink); }
+.dlg { margin: auto; width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); border: 0; border-radius: 16px; padding: 0; box-shadow: 0 24px 60px -20px rgba(0,0,0,.6); color: var(--ink); }
 .dlg::backdrop { background: rgba(10, 20, 50, .55); }
 .dlgBody { display: grid; gap: 10px; padding: 16px; }
 .dlgBody h3 { margin: 0; font: 800 19px/1.2 var(--display), sans-serif; color: var(--blueDeep); }
