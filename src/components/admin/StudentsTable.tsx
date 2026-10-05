@@ -1,6 +1,6 @@
 "use client";
 import { useActionState, useMemo, useState } from "react";
-import { resetStudent, type ResetState } from "../../app/admin/actions";
+import { generateCodes, resetStudent, type CodesState, type ResetState } from "../../app/admin/actions";
 import type { AdminStudent } from "../../lib/admin";
 import a from "./admin.module.css";
 
@@ -10,6 +10,9 @@ export default function StudentsTable({ students }: { students: AdminStudent[] }
   const [group, setGroup] = useState("");
   const [link, setLink] = useState<"" | "linked" | "pending">("");
   const [state, run, pending] = useActionState(resetStudent, null as ResetState);
+  const [codes, makeCodes, codesPending] = useActionState(generateCodes, null as CodesState);
+  const waiting = students.filter(s => !s.linked).length;
+  const noCode = students.filter(s => !s.linked && s.hasCode === false && s.status === "Shortlisted").length;
 
   const groups = useMemo(() => Array.from(new Set(students.map(s => s.group).filter(Boolean))).sort(), [students]);
   const needle = q.trim().toLowerCase();
@@ -32,7 +35,14 @@ export default function StudentsTable({ students }: { students: AdminStudent[] }
           <option value="pending">Not signed in yet</option>
         </select>
       </div>
-      <p className={a.count}>{shown.length} of {students.length} students</p>
+      <p className={a.count}>{shown.length} of {students.length} students · {waiting} not signed in yet{noCode > 0 ? ` · ${noCode} have no code` : ""}</p>
+      {noCode > 0 && (
+        <form action={makeCodes} className={a.codeFix}>
+          <span>{noCode} student(s) were never given an access code, so they cannot link.</span>
+          <button className={a.mini} type="submit" disabled={codesPending}>{codesPending ? "Working…" : "Give them codes"}</button>
+        </form>
+      )}
+      {codes && <p className={codes.ok ? a.ok : a.bad} role="status">{codes.msg}</p>}
 
       {state && (
         <div className={state.ok ? a.codeBox : a.bad} role="status">
@@ -47,7 +57,7 @@ export default function StudentsTable({ students }: { students: AdminStudent[] }
           <tbody>
             {shown.map(x => (
               <tr key={x.regNo}>
-                <td>{x.regNo}</td><td>{x.name}</td><td>{x.group}</td><td>{x.languages || "—"}</td><td>{x.board}</td><td>{x.school}</td><td>{x.place}</td><td>{x.district}</td><td>{x.status}</td><td>{x.linked ? "Yes" : "—"}</td>
+                <td>{x.regNo}</td><td>{x.name}</td><td>{x.group}</td><td>{x.languages || "—"}</td><td>{x.board}</td><td>{x.school}</td><td>{x.place}</td><td>{x.district}</td><td>{x.status}</td><td>{x.linked ? "Yes" : x.hasCode === false && x.status === "Shortlisted" ? "No code" : "—"}</td>
                 <td>
                   <form action={run} onSubmit={e => { if (!window.confirm(x.linked ? `Unlink ${x.name}'s Google account and make a new code?` : `Make a new access code for ${x.name}?`)) e.preventDefault(); }}>
                     <input type="hidden" name="regNo" value={x.regNo} />

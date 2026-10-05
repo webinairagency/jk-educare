@@ -31,6 +31,15 @@ export default async function LinkPage() {
           <h1>One last step</h1>
           <p>Connect <strong>{session.user.email}</strong> to your roll number. You only do this once.</p>
           <LinkForm />
+          <details className={s.small} style={{ marginTop: 12 }}>
+            <summary style={{ cursor: "pointer", fontWeight: 600 }}>Not working? / உதவி</summary>
+            <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+              <li>Type the roll number as on your registration screen, e.g. JK-0012.</li>
+              <li>The code is the 6 digits shown after you registered. It works once.</li>
+              <li>Registered twice? Use the roll number and code from the <b>latest</b> registration.</li>
+              <li>Lost your code or see an error? WhatsApp JK sir: <a href="https://wa.me/919842463437">98424 63437</a>.</li>
+            </ul>
+          </details>
           <form action={async () => { "use server"; await signOut({ redirectTo: "/login" }); }}>
             <p className={s.small}>Wrong Google account? <button type="submit" style={{ background: "none", border: 0, color: "var(--blue)", fontWeight: 600, cursor: "pointer", padding: 0 }}>Use a different one</button></p>
           </form>

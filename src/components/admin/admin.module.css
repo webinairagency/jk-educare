@@ -67,3 +67,5 @@
 .codeBox span { font-size: 13px; font-weight: 500; }
 .bad { color: var(--errc); font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .jump { scroll-behavior: auto; } }
+
+.codeFix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: #FFF4CC; border: 1.5px solid #F2D86B; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 14px; color: #4A3A00; }

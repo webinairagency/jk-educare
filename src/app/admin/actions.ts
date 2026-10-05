@@ -68,3 +68,17 @@ export async function openPreview(f: FormData) {
   (await cookies()).set(PREVIEW_COOKIE, GROUPS.includes(g) ? g : PREVIEW_ALL, { maxAge: 60 * 60 * 8, path: "/", sameSite: "lax" });
   redirect("/portal");
 }
+
+export type CodesState = { ok: boolean; msg: string } | null;
+
+/** Gives a code to every unlinked, shortlisted student who has none (e.g. registered before codes existed). */
+export async function generateCodes(_: CodesState): Promise<CodesState> {
+  await requireAdmin();
+  try {
+    const r = await callScript<{ count?: number }>("adminGenerateCodes");
+    revalidatePath("/admin");
+    return { ok: true, msg: r.count ? `Made new codes for ${r.count} student(s). Open the Google Sheet to see them and send them.` : "Every unlinked student already has a code." };
+  } catch (e) {
+    return { ok: false, msg: e instanceof Error ? e.message : "Could not make codes" };
+  }
+}
