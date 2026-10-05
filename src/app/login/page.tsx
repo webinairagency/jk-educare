@@ -36,6 +36,7 @@ export default async function LoginPage() {
             </button>
           </form>
           <p className={s.small}>First time? Keep your roll number and the 6-digit access code from JK sir ready.</p>
+          <p className={s.small}>If Google shows an error, open this page in <b>Chrome</b> (not inside WhatsApp, Instagram or another app) and try again.</p>
         </div>
       </div>
     </div>

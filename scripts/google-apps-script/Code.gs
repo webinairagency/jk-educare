@@ -164,6 +164,8 @@ function portal_(d) {
       case 'adminSetHidden': return json_(adminSetHidden_(d));
       case 'adminUpdate':   return json_(adminUpdate_(d));
       case 'adminResetStudent': return json_(adminResetStudent_(d));
+      case 'adminGenerateCodes': return json_(adminGenerateCodes_());
+      case 'adminStudentContact': return json_(adminStudentContact_(d));
       default:           return json_({ ok: false, error: 'Unknown action' });
     }
   } catch (err) {
@@ -211,10 +213,11 @@ function link_(d) {
       }
       if (String(rows[i][C.regNo]).toUpperCase() === regNo) rowIdx = i;
     }
-    if (rowIdx < 0) return fail('Roll number or access code is wrong');
+    if (rowIdx < 0) return fail('Roll number not found. Type it like JK-0012, exactly as shown when you registered.');
     const r = rows[rowIdx];
     if (r[C.email]) return { ok: false, error: 'This roll number is already linked to another Google account. Ask JK sir to reset it.' };
-    if (!r[C.code] || String(r[C.code]) !== code) return fail('Roll number or access code is wrong');
+    if (!r[C.code]) return { ok: false, error: 'No access code has been issued for this roll number yet. Please WhatsApp JK sir on 98424 63437.' };
+    if (String(r[C.code]) !== code) return fail('The access code is wrong. Check the 6 digits shown when you registered.');
     if (r[C.status] !== 'Shortlisted') return { ok: false, error: 'This roll number is on the waitlist, not in Batch I yet.' };
 
     sh.getRange(rowIdx + 1, C.email + 1).setValue(email);
@@ -313,7 +316,7 @@ function adminData_() {
   const rows = students_().getDataRange().getValues().slice(1);
   // no phone numbers, access codes or emails go to the admin page
   const students = rows.filter(r => r[C.regNo]).map(r => ({ regNo: String(r[C.regNo]), name: String(r[C.name]), group: String(r[C.group]), board: String(r[C.board]),
-    school: String(r[9]), place: String(r[10]), district: String(r[11]), status: String(r[C.status]), languages: String(r[C.languages] || ''), linked: !!r[C.email] }));
+    school: String(r[9]), place: String(r[10]), district: String(r[11]), status: String(r[C.status]), languages: String(r[C.languages] || ''), linked: !!r[C.email], hasCode: !!r[C.code] }));
   const sheet = { url: ss_().getUrl(), gids: { students: students_().getSheetId(), classes: tab_('Classes', CLASS_HEADERS, '#D3136B').getSheetId(),
     materials: tab_('Materials', MAT_HEADERS, '#1C6B3A').getSheetId(), notices: tab_('Notices', NOTICE_HEADERS, '#B5441B').getSheetId() } };
   return { ok: true, classes: classes, materials: materials, notices: notices, students: students, sheet: sheet };
@@ -428,6 +431,50 @@ function adminResetStudent_(d) {
       sh.getRange(i + 1, C.linkedAt + 1).setValue('');
       sh.getRange(i + 1, C.code + 1).setNumberFormat('@').setValue(code);
       return { ok: true, code: code, name: String(rows[i][C.name]) };
+    }
+    return { ok: false, error: 'Roll number not found' };
+  } finally { lock.releaseLock(); }
+}
+
+/** Gives every Shortlisted, unlinked student who has no code a fresh one. Returns how many. */
+function adminGenerateCodes_() {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(20000);
+    const sh = students_();
+    const rows = sh.getDataRange().getValues();
+    let n = 0;
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (r[C.regNo] && r[C.status] === 'Shortlisted' && !r[C.email] && !r[C.code]) {
+        sh.getRange(i + 1, C.code + 1).setNumberFormat('@').setValue(String(Math.floor(100000 + Math.random() * 900000)));
+        n++;
+      }
+    }
+    return { ok: true, count: n };
+  } finally { lock.releaseLock(); }
+}
+
+/** Phone numbers and the access code for ONE student, only when the admin asks (to send them a WhatsApp message). */
+function adminStudentContact_(d) {
+  const regNo = String(d.regNo || '').toUpperCase().replace(/\s+/g, '');
+  if (!regNo) return { ok: false, error: 'Bad request' };
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    const sh = students_();
+    const rows = sh.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (String(r[C.regNo]).toUpperCase() !== regNo) continue;
+      if (r[C.email]) return { ok: true, linked: true, name: String(r[C.name]), regNo: String(r[C.regNo]) };
+      let code = String(r[C.code] || '');
+      if (!code && r[C.status] === 'Shortlisted') {          // make one so the message can be sent
+        code = String(Math.floor(100000 + Math.random() * 900000));
+        sh.getRange(i + 1, C.code + 1).setNumberFormat('@').setValue(code);
+      }
+      if (!code) return { ok: false, error: 'This student is on the waitlist, so there is no access code.' };
+      return { ok: true, linked: false, name: String(r[C.name]), regNo: String(r[C.regNo]), code: code, phone: String(r[C.phone] || ''), parent: String(r[8] || '') };
     }
     return { ok: false, error: 'Roll number not found' };
   } finally { lock.releaseLock(); }
