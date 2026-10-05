@@ -82,3 +82,17 @@ export async function generateCodes(_: CodesState): Promise<CodesState> {
     return { ok: false, msg: e instanceof Error ? e.message : "Could not make codes" };
   }
 }
+
+export type ContactState = { ok: boolean; error?: string; linked?: boolean; name?: string; regNo?: string; code?: string; phone?: string; parent?: string };
+
+/** Fetches the phone numbers and code of one student for a WhatsApp message. Admin only; nothing is stored. */
+export async function getStudentContact(regNo: string): Promise<ContactState> {
+  await requireAdmin();
+  try {
+    const r = await callScript<ContactState>("adminStudentContact", { regNo });
+    revalidatePath("/admin");
+    return r;
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Could not load the student" };
+  }
+}

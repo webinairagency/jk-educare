@@ -69,3 +69,19 @@
 @media (prefers-reduced-motion: reduce) { .jump { scroll-behavior: auto; } }
 
 .codeFix { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: #FFF4CC; border: 1.5px solid #F2D86B; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; font-size: 14px; color: #4A3A00; }
+
+/* Send-message preview dialog */
+.dlg { width: min(560px, calc(100vw - 24px)); max-height: calc(100vh - 24px); border: 0; border-radius: 16px; padding: 0; box-shadow: 0 24px 60px -20px rgba(0,0,0,.6); color: var(--ink); }
+.dlg::backdrop { background: rgba(10, 20, 50, .55); }
+.dlgBody { display: grid; gap: 10px; padding: 16px; }
+.dlgBody h3 { margin: 0; font: 800 19px/1.2 var(--display), sans-serif; color: var(--blueDeep); }
+.dlgMeta { margin: 0; font-size: 13.5px; color: var(--muted); }
+.dlgRow { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 14px; }
+.dlgRow label { display: inline-flex; align-items: center; gap: 6px; }
+.dlgRow select { font: 600 14px var(--body), sans-serif; border: 1.5px solid var(--line); border-radius: 8px; padding: 7px 8px; background: #fff; }
+.dlgText { width: 100%; min-height: 240px; font: 500 14.5px/1.45 var(--body), sans-serif; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink); background: #FAFBFF; resize: vertical; }
+.dlgBtns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+.dlgSend { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 10px 16px; border-radius: 10px; background: #1FA855; color: #fff !important; font: 700 15px var(--body), sans-serif; text-decoration: none; border: 0; cursor: pointer; }
+.dlgSend[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+.dlgGhost { min-height: 46px; padding: 10px 14px; border-radius: 10px; background: #fff; border: 1.5px solid var(--line); color: var(--blue); font: 700 14.5px var(--body), sans-serif; cursor: pointer; }
+.dlgWarn { margin: 0; font-size: 13px; color: #8A4B00; background: #FFF4CC; border-radius: 8px; padding: 8px 10px; }

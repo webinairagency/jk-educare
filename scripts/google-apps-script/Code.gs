@@ -165,6 +165,7 @@ function portal_(d) {
       case 'adminUpdate':   return json_(adminUpdate_(d));
       case 'adminResetStudent': return json_(adminResetStudent_(d));
       case 'adminGenerateCodes': return json_(adminGenerateCodes_());
+      case 'adminStudentContact': return json_(adminStudentContact_(d));
       default:           return json_({ ok: false, error: 'Unknown action' });
     }
   } catch (err) {
@@ -451,5 +452,30 @@ function adminGenerateCodes_() {
       }
     }
     return { ok: true, count: n };
+  } finally { lock.releaseLock(); }
+}
+
+/** Phone numbers and the access code for ONE student, only when the admin asks (to send them a WhatsApp message). */
+function adminStudentContact_(d) {
+  const regNo = String(d.regNo || '').toUpperCase().replace(/\s+/g, '');
+  if (!regNo) return { ok: false, error: 'Bad request' };
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    const sh = students_();
+    const rows = sh.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      const r = rows[i];
+      if (String(r[C.regNo]).toUpperCase() !== regNo) continue;
+      if (r[C.email]) return { ok: true, linked: true, name: String(r[C.name]), regNo: String(r[C.regNo]) };
+      let code = String(r[C.code] || '');
+      if (!code && r[C.status] === 'Shortlisted') {          // make one so the message can be sent
+        code = String(Math.floor(100000 + Math.random() * 900000));
+        sh.getRange(i + 1, C.code + 1).setNumberFormat('@').setValue(code);
+      }
+      if (!code) return { ok: false, error: 'This student is on the waitlist, so there is no access code.' };
+      return { ok: true, linked: false, name: String(r[C.name]), regNo: String(r[C.regNo]), code: code, phone: String(r[C.phone] || ''), parent: String(r[8] || '') };
+    }
+    return { ok: false, error: 'Roll number not found' };
   } finally { lock.releaseLock(); }
 }
