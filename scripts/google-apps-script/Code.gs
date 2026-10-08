@@ -479,3 +479,55 @@ function adminStudentContact_(d) {
     return { ok: false, error: 'Roll number not found' };
   } finally { lock.releaseLock(); }
 }
+
+/* ---------------- study material: import everything from a Google Drive folder ---------------- */
+// In Google Drive make a folder with this name. Inside it, make one folder per subject (Maths, Physics, Chemistry,
+// Computer Science, Tamil ...) and put the PDFs in the matching subject folder. Then run importStudyMaterial once.
+// Optional: inside a subject folder you can make folders named Notes, Question Bank, Answer Key or Model Exam.
+const STUDY_FOLDER = 'JK Study Material';
+const TYPE_FOLDERS = { 'notes': 'notes', 'question bank': 'question bank', 'question banks': 'question bank', 'answer key': 'answer key', 'answer keys': 'answer key', 'model exam': 'model exam', 'model exams': 'model exam' };
+
+/** Guesses Notes / Question bank / Answer key / Model exam from the file name. */
+function guessType_(name) {
+  const n = String(name).toLowerCase();
+  if (/answer ?keys?/.test(n)) return 'answer key';
+  if (/model|sample paper/.test(n)) return 'model exam';
+  if (/question|mark|pyq|pcq|important|exam/.test(n)) return 'question bank';
+  return 'notes';
+}
+
+/** Adds every new PDF in the Drive folder to the Materials tab (title from the file name, subject from its folder). Safe to run again. */
+function importStudyMaterial() {
+  const found = DriveApp.getFoldersByName(STUDY_FOLDER);
+  if (!found.hasNext()) { Logger.log('Folder "' + STUDY_FOLDER + '" was not found in your Google Drive.'); return; }
+  const root = found.next();
+  const sh = tab_('Materials', MAT_HEADERS, '#1C6B3A');
+  const have = {};
+  sh.getDataRange().getValues().slice(1).forEach(r => { const m = String(r[4]).match(/[-\w]{25,}/); if (m) have[m[0]] = true; });
+  const rows = [];
+  const addFiles = (folder, subject, forcedType) => {
+    const files = folder.getFiles();
+    while (files.hasNext()) {
+      const f = files.next();
+      if (have[f.getId()]) continue;
+      have[f.getId()] = true;
+      f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      const title = f.getName().replace(/\.[^.]+$/, '');
+      rows.push([clean_(title, 120), clean_(subject, 40), forcedType || guessType_(title), 'All', 'https://drive.google.com/file/d/' + f.getId() + '/view', new Date(), '']);
+    }
+  };
+  const walk = (folder, subject, forcedType) => {
+    addFiles(folder, subject, forcedType);
+    const subs = folder.getFolders();
+    while (subs.hasNext()) {
+      const s = subs.next();
+      const asType = TYPE_FOLDERS[s.getName().trim().toLowerCase()];
+      walk(s, subject, asType || forcedType);
+    }
+  };
+  addFiles(root, 'General', '');                          // loose files in the main folder
+  const subjects = root.getFolders();
+  while (subjects.hasNext()) { const s = subjects.next(); walk(s, s.getName().trim(), ''); }
+  if (rows.length) sh.getRange(sh.getLastRow() + 1, 1, rows.length, MAT_HEADERS.length).setValues(rows);
+  Logger.log(rows.length + ' file(s) added to the Materials tab.');
+}

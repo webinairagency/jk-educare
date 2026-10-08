@@ -23,6 +23,8 @@ const COLOURS: Record<string, [string, string]> = {
   jee: ["#7A1FA2", "#FFDD1F"],
 };
 const pick = (s: string): [string, string] => COLOURS[s.trim().toLowerCase()] ?? ["#0F2766", "#FFDD1F"];
+/** [strong, soft] colour pair for a subject, shared by thumbnails and material folders. */
+export const subjectColour = pick;
 
 function wrap(text: string, max: number, lines: number) {
   const words = text.split(/\s+/);

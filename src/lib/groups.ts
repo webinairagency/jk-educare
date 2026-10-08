@@ -65,3 +65,13 @@ export function groupKey(group: string): string | null {
   for (const [key, needles] of order) if (needles.some(n => g.includes(n))) return key;
   return null;
 }
+
+/**
+ * The subject folders on a student's Study material page, in display order: the group's own subjects first,
+ * then the languages the student chose. Admin preview ("All groups") and unrecognised groups see every subject.
+ */
+export function materialFolders(group: string, languages?: string): string[] {
+  const def = GROUP_DEFS.find(d => d.key === groupKey(group));
+  if ((group || "").toLowerCase().includes("admin preview") || !def) return SUBJECTS;
+  return [...def.subjects, ...(parseLanguages(languages) ?? LANGUAGES)];
+}
