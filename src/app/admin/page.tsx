@@ -4,7 +4,7 @@ import Link from "next/link";
 import { signIn, signOut } from "../../auth";
 import { adminSession, sheetLink, type AdminData } from "../../lib/admin";
 import { callScript } from "../../lib/script";
-import { fmtDay, fmtTime, JOIN_EARLY_MIN } from "../../lib/classes-shared";
+import { audience, fmtDay, fmtTime, JOIN_EARLY_MIN } from "../../lib/classes-shared";
 import { GROUPS } from "../../lib/groups";
 import { PREVIEW_ALL } from "../../lib/portal-student";
 import AdminForms from "../../components/admin/AdminForms";
@@ -177,7 +177,8 @@ export default async function AdminPage() {
                     <div className={a.row}>
                       <div className={a.rowText}>
                         <strong>{c.subject}: {c.topic}</strong>
-                        <span>{fmtDay(c.ms)}, {fmtTime(c.ms)} · {c.teacher} · For {c.for || "All"}{c.hidden ? " · hidden" : ""}</span>
+                        <span>{fmtDay(c.ms)}, {fmtTime(c.ms)} · {c.teacher}{c.hidden ? " · hidden" : ""}</span>
+                        <span>👥 {audience(c)}</span>
                       </div>
                       {isLive && <span className={`${a.tag} ${a.tagLive}`}>LIVE</span>}
                       <Toggle tab="classes" row={c.row} hidden={c.hidden} />
@@ -199,7 +200,8 @@ export default async function AdminPage() {
                   <div className={a.row}>
                     <div className={a.rowText}>
                       <strong>{m.title}</strong>
-                      <span>{m.subject} · For {m.for || "All"}{m.hidden ? " · hidden" : ""}</span>
+                      <span>{m.subject}{m.hidden ? " · hidden" : ""}</span>
+                      <span>👥 {audience(m)}</span>
                     </div>
                     <span className={a.tag}>{m.type}</span>
                     <Toggle tab="materials" row={m.row} hidden={m.hidden} />

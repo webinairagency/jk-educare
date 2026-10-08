@@ -139,3 +139,10 @@ export const isExam = (subject: string) => {
   const s = (subject || "").trim().toLowerCase();
   return ["neet", "jee"].some(x => s === x || s.startsWith(x + " ") || s.startsWith(x + "-") || s.startsWith(x + ":"));
 };
+
+/** Plain-words list of the groups that will see an item, e.g. "Bio-Maths, CS-Maths" or "Every group". */
+export function audience(item: { for: string; subject?: string }): string {
+  const names = GROUP_DEFS.filter(g => visibleTo(item, tagsForGroup(g.name))).map(g => g.name.replace("XII – ", ""));
+  if (names.length === GROUP_DEFS.length) return "Every group";
+  return names.length ? names.join(", ") : "No group";
+}
